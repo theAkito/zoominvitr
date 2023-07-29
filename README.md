@@ -9,29 +9,29 @@
 [![Liberapay patrons](https://img.shields.io/liberapay/patrons/Akito?style=plastic)](https://liberapay.com/Akito/)
 
 ## What
-This is a base template for App projects written in Nim.
+Automatically invite peers to scheduled Zoom Meetings.
 
 ## Why
-Allows kickstarting new projects, without fiddling around with metadata basics.
+No need for manual invitations.
 
 ## How
-Select this is a template, when creating a new Git repository through a Git WebUI.
+WIP
 
 ## Where
-Git.
+Linux via Docker
 
 ## Goals
-* Performance
+* Reliability
 
 ## Project Status
 Before Pre-Alpha.
 Unstable API.
 
 ## TODO
-* Always improve
+* Support E-Mail
 
 ## License
-Copyright © 2022  Akito <the@akito.ooo>
+Copyright © 2023  Akito <the@akito.ooo>
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
