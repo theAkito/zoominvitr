@@ -2,10 +2,10 @@
 
 version       = "0.1.0"
 author        = "Akito <the@akito.ooo>"
-description   = "An awesome Nimble package."
+description   = "Push Zoom invitations."
 license       = "GPL-3.0-or-later"
 srcDir        = "src"
-bin           = @["nimpackage"]
+bin           = @["zoominvitr"]
 skipDirs      = @["helpers"]
 skipFiles     = @["README.md"]
 skipExt       = @["nim"]
@@ -14,7 +14,13 @@ backend       = "c"
 
 # Dependencies
 
-requires "nim >= 1.6.4"
+requires "nim             >= 1.6.14"
+requires "schedules       >= 0.2.0"
+requires "puppy           >= 1.0.3"
+# requires "nimdbx          >= 0.4.1"
+requires "timestamp       >= 0.4.2"
+requires "zero_functional >= 1.3.0"
+requires "yaml            >= 1.1.0"
 
 
 # Tasks
@@ -46,9 +52,9 @@ task fbuild, "Build project.":
             --define:appDate:"{buildDate}" \
             --define:danger \
             --opt:speed \
-            --out:nimpackage \
-            src/nimpackage && \
-          strip nimpackage \
+            --out:zoominvitr \
+            src/zoominvitr && \
+          strip zoominvitr \
             --strip-all \
             --remove-section=.comment \
             --remove-section=.note.gnu.gold-version \
@@ -63,8 +69,8 @@ task dbuild, "Debug Build project.":
             --define:appDate:"{buildDate}" \
             --define:debug:true \
             --debuginfo:on \
-            --out:nimpackage_debug \
-            src/nimpackage
+            --out:zoominvitr_debug \
+            src/zoominvitr
        """
 task makecfg, "Create nim.cfg for optimized builds.":
   exec "nim tasks/cfg_optimized.nims"

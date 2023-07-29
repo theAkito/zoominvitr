@@ -10,10 +10,10 @@ const
   appVersion        * {.strdefine.}  = "0.1.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
-  configName        * {.strdefine.}  = "nimpackage.json"
+  configName        * {.strdefine.}  = "zoominvitr.json"
   configPath        * {.strdefine.}  = ""
   configIndentation * {.intdefine.}  = 2
-  sourcepage        * {.strdefine.}  = "https://github.com/theAkito/nimpackage"
+  sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
   homepage          * {.strdefine.}  = sourcepage
   wikipage          * {.strdefine.}  = sourcepage
 
