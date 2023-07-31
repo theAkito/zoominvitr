@@ -10,7 +10,8 @@ const
   appVersion        * {.strdefine.}  = "0.1.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
-  configName        * {.strdefine.}  = "zoominvitr.json"
+  configNameJSON    * {.strdefine.}  = "zoominvitr.json"
+  configNameYAML    * {.strdefine.}  = "zoominvitr.yaml"
   configPath        * {.strdefine.}  = ""
   configIndentation * {.intdefine.}  = 2
   sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
