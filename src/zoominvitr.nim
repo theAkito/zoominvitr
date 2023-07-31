@@ -8,8 +8,8 @@ import
   # model/[
   #   steam
   # ],
-  pushzoominvites/[
-    # imapclient
+  zoominvitr/[
+    configurator
   ],
   std/[
     base64,
@@ -84,3 +84,5 @@ when isMainModule:
   logger.log(lvlNotice, "appVersion: " & appVersion)
   logger.log(lvlNotice, "appRevision: " & appRevision)
   logger.log(lvlNotice, "appDate: " & appDate)
+
+  discard initConf()

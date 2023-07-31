@@ -14,9 +14,9 @@ type
   ConfigMailSender* = object
     mail*: string       ## E-Mail address used to SEND invitations to sendees in the same context.
     serverSMTP*: string ## SMTP server.
-    portSMTP*: int      ## SMTP server.
+    portSMTP*: int      ## SMTP Port.
     user*: string       ## Login username.
-    password*: string   ## Login username.
+    password*: string   ## Login password.
   ConfigMailAddressList* = object
     topic*: string ## A keyword, which will be searched as a\
                    ## substring in the Meeting topics,\
@@ -28,5 +28,5 @@ type
     mailSender*: ConfigMailSender
     mailAddressList*: ConfigMailAddressList
   ConfigMaster* = object
-    version*: int
+    version*: string
     contexts*: seq[ConfigContext]
