@@ -1,12 +1,3 @@
-import
-  std/[
-    streams
-  ],
-  pkg/[
-    ## https://nimyaml.org/index.html
-    yaml
-  ]
-
 type
   ConfigAuthentication* = object
     mail*: string   ## E-Mail address used to log into this particular Zoom account.
@@ -23,10 +14,15 @@ type
                    ## to able to associate the E-Mail addresses\
                    ## from this object to the Meetings matching this keyword.
     mails*: seq[string] ## E-Mail Addresses associated with this object's Meeting topic.
-  ConfigContext* = object
-    authentication*: ConfigAuthentication
+  ConfigPushMail* = object
+    enable*: bool
     mailSender*: ConfigMailSender
     mailAddressList*: ConfigMailAddressList
+  ConfigPushMattermost* = object
+    enable*: bool
+  ConfigContext* = object
+    authentication*: ConfigAuthentication
+    mail*: ConfigPushMail
   ConfigMaster* = object
     version*: string
     contexts*: seq[ConfigContext]
