@@ -35,22 +35,25 @@ var
           mail: "mail@example.com",
           userID: "ZoomUserID"
         ),
-        mailSender: ConfigMailSender(
-          mail: "sender@example.com",
-          serverSMTP: "smtps.example.com",
-          portSMTP: 465, ## 465: TLS; 587 STARTTLS
-          user: "username",
-          password: "password"
-        ),
-        mailAddressList: ConfigMailAddressList(
-          topic: "MeetupTopicKeyword",
-          mails: @[
-            "friend1@example.com",
-            "friend2@example.com",
-            "friend3@example.com",
-            "friend4@example.com",
-            "friend5@example.com"
-          ]
+        mail: ConfigPushMail(
+          enable: false,
+          mailSender: ConfigMailSender(
+            mail: "sender@example.com",
+            serverSMTP: "smtps.example.com",
+            portSMTP: 465, ## 465: TLS; 587 STARTTLS
+            user: "username",
+            password: "password"
+          ),
+          mailAddressList: ConfigMailAddressList(
+            topic: "MeetupTopicKeyword",
+            mails: @[
+              "friend1@example.com",
+              "friend2@example.com",
+              "friend3@example.com",
+              "friend4@example.com",
+              "friend5@example.com"
+            ]
+          )
         )
       )
     ]
