@@ -5,18 +5,8 @@ import
   ],
   std/[
     segfaults,
-    sequtils,
-    strutils,
     json,
     os,
-    htmlparser,
-    xmltree,
-    # threadpool,
-    tables,
-    times,
-    asyncdispatch,
-    random,
-    strformat,
     streams,
     logging
   ],
@@ -34,7 +24,10 @@ var
         zoom: ConfigZoom(
           authentication: ConfigZoomAuthentication(
             mail: "mail@example.com",
-            userID: "ZoomUserID"
+            userID: "ZoomUserID",
+            accountID: "",
+            clientID: "",
+            clientSecret: ""
           )
         ),
         mail: ConfigPushMail(
@@ -85,7 +78,6 @@ proc genDefaultConfig(path = configPath, name = configNameYAML): string =
   defer: fStream.close
   config.dump(
     fStream,
-    #anchorStyle = asNOne,
     tagStyle = tsNone,
     options = defineOptions(outputVersion = ovNone),
     handles = @[]
