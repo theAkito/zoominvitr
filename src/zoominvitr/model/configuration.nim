@@ -1,7 +1,14 @@
 type
-  ConfigAuthentication* = object
-    mail*: string   ## E-Mail address used to log into this particular Zoom account.
-    userID*: string ## User ID provided by Zoom.
+  ConfigZoomAuthentication* = object
+    ## https://developers.zoom.us/docs/api/rest/using-zoom-apis/#client-credentials
+    ## https://devforum.zoom.us/t/userid-where-to-get-it/14125
+    ## https://developers.zoom.us/docs/api/rest/reference/zoom-api/methods/#operation/meetings
+    ## https://developers.zoom.us/docs/integrations/oauth/#using-an-access-token
+    mail*: string      ## E-Mail address used to log into this particular Zoom account.
+    userID*: string    ## User ID provided by Zoom.
+    accountID*: string ## User ID provided by Zoom.
+    clientID*: string  ## User ID provided by Zoom.
+    clientSecret*: string ## User ID provided by Zoom.
   ConfigMailSender* = object
     mail*: string       ## E-Mail address used to SEND invitations to sendees in the same context.
     serverSMTP*: string ## SMTP server.
@@ -20,8 +27,10 @@ type
     mailAddressList*: ConfigMailAddressList
   ConfigPushMattermost* = object
     enable*: bool
+  ConfigZoom* = object
+    authentication*: ConfigZoomAuthentication
   ConfigContext* = object
-    authentication*: ConfigAuthentication
+    zoom*: ConfigZoom
     mail*: ConfigPushMail
   ConfigMaster* = object
     version*: string
