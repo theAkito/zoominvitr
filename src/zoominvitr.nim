@@ -3,34 +3,17 @@
 ]##
 
 import
-  # meta,
-  # database,
-  # model/[
-  #   steam
-  # ],
   zoominvitr/[
     meta,
     configurator
   ],
   std/[
     base64,
-    algorithm,
     segfaults,
-    sequtils,
-    strutils,
     json,
-    os,
-    htmlparser,
-    xmltree,
     tables,
-    asyncdispatch,
-    times,
     strformat,
-    strtabs,
-    logging,
-    random,
-    sugar,
-    # threadpool
+    logging
   ],
   pkg/[
     puppy,
@@ -53,7 +36,9 @@ when isMainModule:
   logger.log(lvlNotice, "appRevision: " & appRevision)
   logger.log(lvlNotice, "appDate: " & appDate)
 
-  discard initConf()
+  if not initConf():
+    logger.log(lvlFatal, """Failed to initialise configuration file!""")
+    quit 1
 
   for ctx in config.contexts:
     let
@@ -76,12 +61,6 @@ when isMainModule:
           ].HttpHeaders
         ).body.parseJson{"access_token"}.getStr
       bearer_access_token = &"Bearer {access_token}"
-
-    echo account_id
-    echo client_id
-    echo client_secret
-    echo access_token
-    echo bearer_access_token
 
     echo pretty get(
       &"{root_url}users/{mailToID[userMail]}/meetings",
