@@ -31,9 +31,11 @@ var
     version: "appVersion",
     contexts: @[
       ConfigContext(
-        authentication: ConfigAuthentication(
-          mail: "mail@example.com",
-          userID: "ZoomUserID"
+        zoom: ConfigZoom(
+          authentication: ConfigZoomAuthentication(
+            mail: "mail@example.com",
+            userID: "ZoomUserID"
+          )
         ),
         mail: ConfigPushMail(
           enable: false,
