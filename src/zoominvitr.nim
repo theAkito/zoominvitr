@@ -91,7 +91,6 @@ when isMainModule:
         it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
       )
 
-    echo pretty %*meetingsMatched.yes
-
-    for meeting in meetingsMatched.yes:
-      ctx.sendMailDryRun(meeting)
+    if ctx.mail.enable:
+      for meeting in meetingsMatched.yes:
+        ctx.sendMailDryRun(meeting)
