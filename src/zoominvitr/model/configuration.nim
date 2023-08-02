@@ -1,4 +1,6 @@
 type
+  ConfigZoomFilterStatement* = enum
+    OR, AND
   ConfigZoomAuthentication* = object
     ## https://developers.zoom.us/docs/api/rest/using-zoom-apis/#client-credentials
     ## https://devforum.zoom.us/t/userid-where-to-get-it/14125
@@ -28,12 +30,17 @@ type
     mailReceiver*: ConfigMailReceiver
   ConfigPushMattermost* = object
     enable*: bool
+  ConfigZoomPatternKeyword* = object
+    statement*: ConfigZoomFilterStatement ## If `OR`, any of the keywords should match. Not all have to match.\
+                                          ## If `AND`, all keywords must match. If only one does not match, the match fails.
+    keywords*: seq[string] ## Keywords, which will be searched as a\
+                           ## substring in the Meeting topics,\
+                           ## to able to associate the E-Mail addresses\
+                           ## from this object to the Meetings matching these keywords.
   ConfigZoom* = object
     authentication*: ConfigZoomAuthentication
-    topic*: string ## A keyword, which will be searched as a\
-                   ## substring in the Meeting topics,\
-                   ## to able to associate the E-Mail addresses\
-                   ## from this object to the Meetings matching this keyword.
+    patternKeywordsYes*: seq[ConfigZoomPatternKeyword] ## Gets Meetings, which match what is in here.
+    patternKeywordsNo*: seq[ConfigZoomPatternKeyword]  ## Ignores Meetings, which match what is in here.
   ConfigContext* = object
     zoom*: ConfigZoom
     mail*: ConfigPushMail

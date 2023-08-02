@@ -22,7 +22,26 @@ var
     contexts: @[
       ConfigContext(
         zoom: ConfigZoom(
-          topic: "MeetupTopicKeyword",
+          patternKeywordsYes: @[
+            ConfigZoomPatternKeyword(
+              statement: OR,
+              keywords: @[
+                "MeetupTopicKeyword",
+                "Second Keyword",
+                "Juggernaut"
+              ]
+            )
+          ],
+          patternKeywordsNo: @[
+            ConfigZoomPatternKeyword(
+              statement: AND,
+              keywords: @[
+                "NotAllowedKeyword",
+                "Nonsense",
+                "Test"
+              ]
+            )
+          ],
           authentication: ConfigZoomAuthentication(
             mail: "mail@example.com",
             userID: "ZoomUserID",
