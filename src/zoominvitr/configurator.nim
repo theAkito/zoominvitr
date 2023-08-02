@@ -70,7 +70,25 @@ var
               "friend4@example.com",
               "friend5@example.com"
             ]
-          )
+          ),
+          schedule: @[
+            ConfigPushSchedule(
+              tType: DAYS,
+              amount: 7
+            ),
+            ConfigPushSchedule(
+              tType: DAYS,
+              amount: 3
+            ),
+            ConfigPushSchedule(
+              tType: HOURS,
+              amount: 1
+            ),
+            ConfigPushSchedule(
+              tType: MINUTES,
+              amount: 15
+            )
+          ]
         )
       )
     ]
