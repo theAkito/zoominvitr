@@ -1,6 +1,8 @@
 type
   ConfigZoomFilterStatement* = enum
     OR, AND
+  ConfigPushScheduleTimeType* = enum
+    DAYS, HOURS, MINUTES
   ConfigZoomAuthentication* = object
     ## https://developers.zoom.us/docs/api/rest/using-zoom-apis/#client-credentials
     ## https://devforum.zoom.us/t/userid-where-to-get-it/14125
@@ -24,10 +26,14 @@ type
     bodyTpl*: string    ## E-Mail body with placeholders.\
                         ## {zoom.URL} will be replaced with the Zoom URL.\
                         ## {zoom.TOPIC} will be replaced with the FOUND Meeting topic, according to how it is saved in Zoom.
+  ConfigPushSchedule* = object
+    tType*: ConfigPushScheduleTimeType ## Whether the amount applies to days, hours or minutes.
+    amount*: int        ## How many days|hours|minutes before the Meeting, recipients should get a notification.
   ConfigPushMail* = object
     enable*: bool
     mailSender*: ConfigMailSender
     mailReceiver*: ConfigMailReceiver
+    schedule*: seq[ConfigPushSchedule]
   ConfigPushMattermost* = object
     enable*: bool
   ConfigZoomPatternKeyword* = object

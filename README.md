@@ -30,6 +30,7 @@ Unstable API.
 ## TODO
 * ~~Support E-Mail~~
 * ~~Add good enough keyword filter via configuration~~
+* Quit early on invalid configuration
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
