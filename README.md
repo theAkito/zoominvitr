@@ -28,7 +28,8 @@ Before Pre-Alpha.
 Unstable API.
 
 ## TODO
-* Support E-Mail
+* ~~Support E-Mail~~
+* Add proper keyword filter via configuration
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
