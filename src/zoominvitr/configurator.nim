@@ -22,6 +22,7 @@ var
     contexts: @[
       ConfigContext(
         zoom: ConfigZoom(
+          topic: "MeetupTopicKeyword",
           authentication: ConfigZoomAuthentication(
             mail: "mail@example.com",
             userID: "ZoomUserID",
@@ -37,10 +38,12 @@ var
             serverSMTP: "smtps.example.com",
             portSMTP: 465, ## 465: TLS; 587 STARTTLS
             user: "username",
-            password: "password"
+            password: "password",
+            startTLS: false
           ),
-          mailAddressList: ConfigMailAddressList(
-            topic: "MeetupTopicKeyword",
+          mailReceiver: ConfigMailReceiver(
+            subjectTpl: "Invitation to {zoom.TOPIC}",
+            bodyTpl: "You are invited to {zoom.TOPIC}!\n\nPlease, join via the following link:\n\n{zoom.URL}",
             mails: @[
               "friend1@example.com",
               "friend2@example.com",
