@@ -15,20 +15,25 @@ type
     portSMTP*: int      ## SMTP Port.
     user*: string       ## Login username.
     password*: string   ## Login password.
-  ConfigMailAddressList* = object
-    topic*: string ## A keyword, which will be searched as a\
-                   ## substring in the Meeting topics,\
-                   ## to able to associate the E-Mail addresses\
-                   ## from this object to the Meetings matching this keyword.
+    startTLS*: bool     ## Whether to use STARTTLS.
+  ConfigMailReceiver* = object
     mails*: seq[string] ## E-Mail Addresses associated with this object's Meeting topic.
+    subjectTpl*: string ## E-Mail Subject with placeholders.
+    bodyTpl*: string    ## E-Mail body with placeholders.\
+                        ## {zoom.URL} will be replaced with the Zoom URL.\
+                        ## {zoom.TOPIC} will be replaced with the FOUND Meeting topic, according to how it is saved in Zoom.
   ConfigPushMail* = object
     enable*: bool
     mailSender*: ConfigMailSender
-    mailAddressList*: ConfigMailAddressList
+    mailReceiver*: ConfigMailReceiver
   ConfigPushMattermost* = object
     enable*: bool
   ConfigZoom* = object
     authentication*: ConfigZoomAuthentication
+    topic*: string ## A keyword, which will be searched as a\
+                   ## substring in the Meeting topics,\
+                   ## to able to associate the E-Mail addresses\
+                   ## from this object to the Meetings matching this keyword.
   ConfigContext* = object
     zoom*: ConfigZoom
     mail*: ConfigPushMail
