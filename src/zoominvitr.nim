@@ -92,3 +92,6 @@ when isMainModule:
       )
 
     echo pretty %*meetingsMatched.yes
+
+    for meeting in meetingsMatched.yes:
+      ctx.sendMailDryRun(meeting)
