@@ -29,7 +29,7 @@ Unstable API.
 
 ## TODO
 * ~~Support E-Mail~~
-* Add proper keyword filter via configuration
+* ~~Add good enough keyword filter via configuration~~
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>

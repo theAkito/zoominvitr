@@ -9,7 +9,8 @@ import
     mail
   ],
   zoominvitr/model/[
-    zoom
+    zoom,
+    configuration
   ],
   std/[
     base64,
@@ -29,11 +30,21 @@ import
 
 const
   root_url = "https://api.zoom.us/v2/"
-  header_authorization = "Authorization"
-  headerKey_content_type = "Content-Type"
-  headerVal_content_type = "application/json"
+  headerKey_authorization = "Authorization"
+  headerKey_contentType = "Content-Type"
+  headerVal_contentType = "application/json"
   headerKey_host = "Host"
   headerVal_host = "zoom.us"
+
+func matchKeywords(topic: string, keywords: seq[ConfigZoomPatternKeyword]): bool =
+  for words in keywords:
+    let state = words.statement
+    for word in words.keywords:
+      if not topic.contains(word):
+        if state == AND:
+          return false
+      elif state == OR:
+        return true
 
 
 when isMainModule:
@@ -62,8 +73,8 @@ when isMainModule:
       access_token = post(
         &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
         @[
-          (header_authorization, bearer_token),
-          (headerKey_content_type, headerVal_content_type),
+          (headerKey_authorization, bearer_token),
+          (headerKey_contentType, headerVal_contentType),
           (headerKey_host, headerVal_host)
         ].HttpHeaders
       ).body.parseJson{"access_token"}.getStr
@@ -71,22 +82,13 @@ when isMainModule:
       meetings = get(
         &"{root_url}users/{mailToID[userMail]}/meetings",
         @[
-          (header_authorization, bearer_access_token),
-          (headerKey_content_type, headerVal_content_type),
+          (headerKey_authorization, bearer_access_token),
+          (headerKey_contentType, headerVal_contentType),
           (headerKey_host, headerVal_host)
         ].HttpHeaders
       ).body.parseJson.toZoomMeetings.toSeq
-      meetingsMatched = meetings --> partition(it.topic.contains(ctx.zoom.topic))
+      meetingsMatched = meetings --> partition(
+        it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
+      )
 
     echo pretty %*meetingsMatched.yes
-
-    # echo pretty get(
-    #   &"{root_url}users/{mailToID[userMail]}/meetings",
-    #   @[
-    #     (header_authorization, bearer_access_token),
-    #     (headerKey_content_type, headerVal_content_type),
-    #     (headerKey_host, headerVal_host)
-    #   ].HttpHeaders
-    # ).body.parseJson
-
-    # ctx.sendMailDryRun 
