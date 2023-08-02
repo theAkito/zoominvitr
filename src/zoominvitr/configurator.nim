@@ -14,8 +14,8 @@ import
     yaml
   ]
 
-let
-  logger = newConsoleLogger(defineLogLevel(), logMsgPrefix & logMsgInter & "configurator" & logMsgSuffix)
+let logger = getLogger("configurator")
+
 var
   config* = ConfigMaster(
     version: "appVersion",

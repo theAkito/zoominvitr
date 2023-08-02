@@ -28,7 +28,7 @@ type
 iterator toZoomMeetings*(payload: JsonNode): ZoomMeeting {.gcsafe, raises: [ExceptionNoMeetingFound, KeyError, ValueError].} =
   ## Takes entire response payload from Zoom API's
   ## `https://api.zoom.us/v2/users/<accountId>/meetings`
-  let rawMeetings = if payload.hasKey("meetings"): payload["meetings"] else: raise ExceptionNoMeetingFound.newException("No meetings were found in the provided JSON!")
+  let rawMeetings = if payload.hasKey("meetings"): payload["meetings"].getElems else: echo pretty %payload; raise ExceptionNoMeetingFound.newException("No meetings were found in the provided JSON!")
   for jMeeting in rawMeetings:
     let raw = jMeeting.to(RawZoomMeeting)
     yield ZoomMeeting(
