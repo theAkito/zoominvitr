@@ -22,3 +22,4 @@ htmldocs/
 /zoominvitr_debug
 /*.old
 /*.yaml*
+/src/zoominvitr/database
