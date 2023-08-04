@@ -10,14 +10,12 @@ import
     database
   ],
   std/[
-    algorithm,
     segfaults,
     sequtils,
     strutils,
     json,
     os,
-    htmlparser,
-    xmltree,
+    options,
     tables,
     asyncdispatch,
     times,
@@ -30,7 +28,25 @@ import
   ],
   pkg/[
     puppy,
-    zero_functional
+    zero_functional,
+    ready
   ]
 
-## https://github.com/guzba/ready
+let
+  # redis = newRedisConn("redis")
+  redis = newRedisConn()
+
+redis.send("MULTI")
+redis.send("DEL", "test1")
+redis.send("RPUSH", "test1", "item1")
+redis.send("RPUSH", "test1", "item2")
+redis.send("RPUSH", "test1", "item3")
+redis.send("EXEC")
+# echo redis.receive().to(seq[string])
+echo redis.receive()
+echo redis.receive()
+echo redis.receive()
+echo redis.receive()
+echo redis.receive()
+echo redis.receive()#.to(seq[string])
+echo redis.command("LRANGE", "test1", "0", "-1")#.to(seq[string])
