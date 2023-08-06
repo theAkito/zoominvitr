@@ -49,18 +49,14 @@ proc saveNotified(n: DatabaseNotified): RedisReply {.discardable.} =
     ("EXEC", @[])
   ].exec
 
-proc loadNotified(n: DatabaseNotified): RedisReply {.discardable.} =
-  [
-    ("MULTI", @[]),
-    ("HMSET", @[n.keywordSignature, "timestamp", n.timestamp]),
-    ("EXEC", @[])
-  ].exec
+proc loadNotified(n: DatabaseNotified): seq[string] =
+  redis.command("HGETALL", n.keywordSignature).to(seq[string])
 
 proc saveNotified*(config: ConfigZoom) =
-  createDatabaseNotified(config.patternKeywordsYes, config.patternKeywordsNo).saveNotified
+  config.createDatabaseNotified.saveNotified
 
-proc loadNotified*(config: ConfigZoom) =
-  createDatabaseNotified(config.patternKeywordsYes, config.patternKeywordsNo).saveNotified
+proc loadNotified*(config: ConfigZoom): seq[string] =
+  config.createDatabaseNotified.loadNotified
 
 
 when isMainModule:
@@ -84,4 +80,4 @@ when isMainModule:
 
   saveNotified(cfg)
 
-  echo redis.command("HGETALL", createDatabaseNotified(cfg.patternKeywordsYes, cfg.patternKeywordsNo).keywordSignature)
+  echo redis.command("HGETALL", createDatabaseNotified(cfg.patternKeywordsYes, cfg.patternKeywordsNo).keywordSignature).to(seq[string])
