@@ -5,9 +5,11 @@ import
   ],
   std/[
     segfaults,
+    sequtils,
     json,
     os,
     streams,
+    sugar,
     logging
   ],
   pkg/[
@@ -155,3 +157,11 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
   except:
     return false
   true
+
+proc validateConf*(path = configPath, name = configNameYAML): bool =
+  let
+    yesesNos = collect:
+      for ctx in config.contexts:
+        (ctx.zoom.patternKeywordsYes, ctx.zoom.patternKeywordsYes)
+  yesesNos.any do (yesNo: (seq[ConfigZoomPatternKeyword], seq[ConfigZoomPatternKeyword])) -> bool:
+    yesesNos.countIt(it[0] == yesNo[0]) == 1 and yesesNos.countIt(it[1] == yesNo[1]) == 1

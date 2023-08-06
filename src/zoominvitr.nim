@@ -58,6 +58,10 @@ when isMainModule:
     logger.log(lvlFatal, """Failed to initialise configuration file!""")
     quit 1
 
+  if not validateConf():
+    logger.log(lvlFatal, """Configuration file may not have the same `patternKeywordsYes` or `patternKeywordsNo` in multiple contexts!""")
+    quit 1
+
   for ctx in config.contexts:
     defer: sleep 10000
     let
