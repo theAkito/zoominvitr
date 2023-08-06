@@ -30,8 +30,12 @@ import
   pkg/[
     puppy,
     zero_functional,
-    ready
+    ready,
+    timestamp
   ]
+
+export DatabaseNotified
+export timestamp
 
 let
   # redis = newRedisConn("redis")
@@ -55,8 +59,8 @@ proc loadNotified(n: DatabaseNotified): seq[string] =
 proc saveNotified*(config: ConfigZoom) =
   config.createDatabaseNotified.saveNotified
 
-proc loadNotified*(config: ConfigZoom): seq[string] =
-  config.createDatabaseNotified.loadNotified
+proc loadNotified*(config: ConfigZoom): DatabaseNotified =
+  config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
 
 
 when isMainModule:

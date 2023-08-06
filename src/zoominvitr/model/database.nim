@@ -20,3 +20,8 @@ proc createDatabaseNotified*(config: ConfigZoom): DatabaseNotified =
     keywordSignature: $config.patternKeywordsYes & $config.patternKeywordsYes, #TODO Use some smarter hash-alike.
     timestamp: $initTimestamp()
   )
+
+proc deserialiseDatabaseNotified*(fields: seq[string]): DatabaseNotified =
+  DatabaseNotified(
+    timestamp: fields[fields.find("timestamp").succ]
+  )

@@ -6,6 +6,7 @@ import
   zoominvitr/[
     meta,
     configurator,
+    database,
     mail
   ],
   zoominvitr/model/[
@@ -20,6 +21,7 @@ import
     os,
     json,
     tables,
+    times,
     strformat,
     logging
   ],
@@ -96,6 +98,7 @@ when isMainModule:
         meetingsMatched = meetings --> partition(
           it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
         )
+        notifiedLast = ctx.zoom.loadNotified.timestamp.parseZulu
 
       if ctx.mail.enable:
         for meeting in meetingsMatched.yes:
