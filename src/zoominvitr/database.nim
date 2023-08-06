@@ -7,7 +7,8 @@
 import
   meta,
   model/[
-    database
+    database,
+    configuration
   ],
   std/[
     segfaults,
@@ -35,7 +36,35 @@ import
 let
   # redis = newRedisConn("redis")
   redis = newRedisConn()
-  redisTestList = [
+
+proc exec(cmd: openArray[(string, seq[string])]): RedisReply {.discardable.} =
+  redis.send cmd
+  for e in cmd:
+    result = redis.receive
+
+proc saveNotified(n: DatabaseNotified): RedisReply {.discardable.} =
+  [
+    ("MULTI", @[]),
+    ("HMSET", @[n.keywordSignature, "timestamp", n.timestamp]),
+    ("EXEC", @[])
+  ].exec
+
+proc loadNotified(n: DatabaseNotified): RedisReply {.discardable.} =
+  [
+    ("MULTI", @[]),
+    ("HMSET", @[n.keywordSignature, "timestamp", n.timestamp]),
+    ("EXEC", @[])
+  ].exec
+
+proc saveNotified*(config: ConfigZoom) =
+  createDatabaseNotified(config.patternKeywordsYes, config.patternKeywordsNo).saveNotified
+
+proc loadNotified*(config: ConfigZoom) =
+  createDatabaseNotified(config.patternKeywordsYes, config.patternKeywordsNo).saveNotified
+
+
+when isMainModule:
+  const redisTestList = [
     ("MULTI", @[]),
     ("DEL", @["test1"]),
     ("RPUSH", @["test1", "item1"]),
@@ -44,9 +73,15 @@ let
     ("EXEC", @[])
   ]
 
-redis.send(redisTestList)
+  redis.send(redisTestList)
 
-for e in redisTestList:
-  echo redis.receive()
+  for e in redisTestList:
+    echo redis.receive()
 
-echo redis.command("LRANGE", "test1", "0", "-1")
+  echo redis.command("LRANGE", "test1", "0", "-1")
+
+  let cfg = ConfigZoom(patternKeywordsYes: @[ConfigZoomPatternKeyword(keywords: @["yes"])], patternKeywordsNo: @[ConfigZoomPatternKeyword(keywords: @["no"])])
+
+  saveNotified(cfg)
+
+  echo redis.command("HGETALL", createDatabaseNotified(cfg.patternKeywordsYes, cfg.patternKeywordsNo).keywordSignature)
