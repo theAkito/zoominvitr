@@ -14,3 +14,9 @@ proc createDatabaseNotified*(patternKeywordsYes, patternKeywordsNo: seq[ConfigZo
     keywordSignature: $patternKeywordsYes & $patternKeywordsYes, #TODO Use some smarter hash-alike.
     timestamp: $initTimestamp()
   )
+
+proc createDatabaseNotified*(config: ConfigZoom): DatabaseNotified =
+  DatabaseNotified(
+    keywordSignature: $config.patternKeywordsYes & $config.patternKeywordsYes, #TODO Use some smarter hash-alike.
+    timestamp: $initTimestamp()
+  )
