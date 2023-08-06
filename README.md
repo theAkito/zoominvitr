@@ -30,7 +30,8 @@ Unstable API.
 ## TODO
 * ~~Support E-Mail~~
 * ~~Add good enough keyword filter via configuration~~
-* Quit early on invalid configuration
+* ~~Quit early on invalid configuration~~
+* ~~Error out on duplicate patternKeywords across Contexts~~
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
