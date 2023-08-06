@@ -14,6 +14,7 @@ import
     configuration
   ],
   std/[
+    algorithm,
     base64,
     segfaults,
     strutils,
@@ -65,7 +66,7 @@ when isMainModule:
     quit 1
 
   while true:
-    sleep 60_000
+    defer: sleep 60_000
     for ctx in config.contexts:
       defer: sleep 10000
       let
@@ -98,8 +99,17 @@ when isMainModule:
         meetingsMatched = meetings --> partition(
           it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
         )
-        notifiedLast = ctx.zoom.loadNotified.timestamp.parseZulu
+        notifiedLast = block:
+          ctx.zoom.initNotifiedIfNotExists
+          ctx.zoom.loadNotified.timestamp.parseZulu
+        meetingsMatchedYesSorted = meetingsMatched.yes.sorted do (x, y: ZoomMeeting) -> int:
+          if x.startTime.parseZulu < y.startTime.parseZulu: -1
+          else: 1
+        # timespanTilEvent = ctx.zoom.
 
-      if ctx.mail.enable:
-        for meeting in meetingsMatched.yes:
-          ctx.sendMailDryRun(meeting)
+      echo "===================meetingsMatchedYesSorted==================="
+      echo pretty %meetingsMatchedYesSorted
+
+      # if ctx.mail.enable:
+      #   for meeting in meetingsMatched.yes.sorted():
+      #     ctx.sendMailDryRun(meeting)

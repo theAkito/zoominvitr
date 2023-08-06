@@ -46,6 +46,9 @@ proc exec(cmd: openArray[(string, seq[string])]): RedisReply {.discardable.} =
   for e in cmd:
     result = redis.receive
 
+proc keyExists(key: varargs[string]): bool =
+  [("EXISTS", key.toSeq)].exec.to(int) == key.len
+
 proc saveNotified(n: DatabaseNotified): RedisReply {.discardable.} =
   [
     ("MULTI", @[]),
@@ -58,6 +61,15 @@ proc loadNotified(n: DatabaseNotified): seq[string] =
 
 proc saveNotified*(config: ConfigZoom) =
   config.createDatabaseNotified.saveNotified
+
+proc initNotifiedIfNotExists*(config: ConfigZoom) =
+  ## https://redis.io/commands/hset/
+  let
+    n = config.createDatabaseNotified
+    key = n.keywordSignature
+  if not key.keyExists:
+    n.saveNotified
+    [("HSET", @[key, "timestamp", $initTimestamp(0)])].exec
 
 proc loadNotified*(config: ConfigZoom): DatabaseNotified =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
