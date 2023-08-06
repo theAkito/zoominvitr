@@ -62,39 +62,41 @@ when isMainModule:
     logger.log(lvlFatal, """Configuration file may not have the same `patternKeywordsYes` or `patternKeywordsNo` in multiple contexts!""")
     quit 1
 
-  for ctx in config.contexts:
-    defer: sleep 10000
-    let
-      userMail = ctx.zoom.authentication.mail
-      mailToID = {
-        userMail: ctx.zoom.authentication.userID
-      }.toTable
-      account_id = ctx.zoom.authentication.accountID
-      client_id = ctx.zoom.authentication.clientID
-      client_secret = ctx.zoom.authentication.clientSecret
-      base_bearer_token = encode(&"""{client_id}:{client_secret}""")
-      bearer_token = "Basic " & base_bearer_token
-      access_token = post(
-        &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
-        @[
-          (headerKey_authorization, bearer_token),
-          (headerKey_contentType, headerVal_contentType),
-          (headerKey_host, headerVal_host)
-        ].HttpHeaders
-      ).body.parseJson{"access_token"}.getStr
-      bearer_access_token = &"Bearer {access_token}"
-      meetings = get(
-        &"{root_url}users/{mailToID[userMail]}/meetings",
-        @[
-          (headerKey_authorization, bearer_access_token),
-          (headerKey_contentType, headerVal_contentType),
-          (headerKey_host, headerVal_host)
-        ].HttpHeaders
-      ).body.parseJson.toZoomMeetings.toSeq
-      meetingsMatched = meetings --> partition(
-        it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
-      )
+  while true:
+    sleep 60_000
+    for ctx in config.contexts:
+      defer: sleep 10000
+      let
+        userMail = ctx.zoom.authentication.mail
+        mailToID = {
+          userMail: ctx.zoom.authentication.userID
+        }.toTable
+        account_id = ctx.zoom.authentication.accountID
+        client_id = ctx.zoom.authentication.clientID
+        client_secret = ctx.zoom.authentication.clientSecret
+        base_bearer_token = encode(&"""{client_id}:{client_secret}""")
+        bearer_token = "Basic " & base_bearer_token
+        access_token = post(
+          &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
+          @[
+            (headerKey_authorization, bearer_token),
+            (headerKey_contentType, headerVal_contentType),
+            (headerKey_host, headerVal_host)
+          ].HttpHeaders
+        ).body.parseJson{"access_token"}.getStr
+        bearer_access_token = &"Bearer {access_token}"
+        meetings = get(
+          &"{root_url}users/{mailToID[userMail]}/meetings",
+          @[
+            (headerKey_authorization, bearer_access_token),
+            (headerKey_contentType, headerVal_contentType),
+            (headerKey_host, headerVal_host)
+          ].HttpHeaders
+        ).body.parseJson.toZoomMeetings.toSeq
+        meetingsMatched = meetings --> partition(
+          it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
+        )
 
-    if ctx.mail.enable:
-      for meeting in meetingsMatched.yes:
-        ctx.sendMailDryRun(meeting)
+      if ctx.mail.enable:
+        for meeting in meetingsMatched.yes:
+          ctx.sendMailDryRun(meeting)
