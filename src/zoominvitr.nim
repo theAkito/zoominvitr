@@ -105,11 +105,12 @@ when isMainModule:
         meetingsMatchedYesSorted = meetingsMatched.yes.sorted do (x, y: ZoomMeeting) -> int:
           if x.startTime.parseZulu < y.startTime.parseZulu: -1
           else: 1
+        meetingsMatchedYesSortedPlanned = meetingsMatchedYesSorted.filterIt(initTimestamp() < it.startTime.parseZulu)
         # timespanTilEvent = ctx.zoom.
 
       echo "===================meetingsMatchedYesSorted==================="
-      echo pretty %meetingsMatchedYesSorted
+      echo pretty %meetingsMatchedYesSortedPlanned
 
-      # if ctx.mail.enable:
-      #   for meeting in meetingsMatched.yes.sorted():
-      #     ctx.sendMailDryRun(meeting)
+      if ctx.mail.enable:
+        for meeting in meetingsMatched.yes:
+          ctx.sendMailDryRun(meeting)

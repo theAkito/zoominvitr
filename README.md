@@ -32,6 +32,8 @@ Unstable API.
 * ~~Add good enough keyword filter via configuration~~
 * ~~Quit early on invalid configuration~~
 * ~~Error out on duplicate patternKeywords across Contexts~~
+* Save Contexts in Database
+* Minimise Zoom API calls
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
