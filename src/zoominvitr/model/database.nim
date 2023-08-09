@@ -25,3 +25,6 @@ proc deserialiseDatabaseNotified*(fields: seq[string]): DatabaseNotified =
   DatabaseNotified(
     timestamp: fields[fields.find("timestamp").succ]
   )
+
+proc deserialiseDatabaseNotifiedTimestamp*(fields: seq[string]): Timestamp =
+  fields[fields.find("timestamp").succ].parseZulu

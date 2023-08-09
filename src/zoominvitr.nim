@@ -24,7 +24,8 @@ import
     tables,
     times,
     strformat,
-    logging
+    logging,
+    sugar
   ],
   pkg/[
     puppy,
@@ -70,47 +71,49 @@ when isMainModule:
     for ctx in config.contexts:
       defer: sleep 10000
       let
-        userMail = ctx.zoom.authentication.mail
-        mailToID = {
-          userMail: ctx.zoom.authentication.userID
-        }.toTable
-        account_id = ctx.zoom.authentication.accountID
-        client_id = ctx.zoom.authentication.clientID
-        client_secret = ctx.zoom.authentication.clientSecret
-        base_bearer_token = encode(&"""{client_id}:{client_secret}""")
-        bearer_token = "Basic " & base_bearer_token
-        access_token = post(
-          &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
-          @[
-            (headerKey_authorization, bearer_token),
-            (headerKey_contentType, headerVal_contentType),
-            (headerKey_host, headerVal_host)
-          ].HttpHeaders
-        ).body.parseJson{"access_token"}.getStr
-        bearer_access_token = &"Bearer {access_token}"
-        meetings = get(
-          &"{root_url}users/{mailToID[userMail]}/meetings",
-          @[
-            (headerKey_authorization, bearer_access_token),
-            (headerKey_contentType, headerVal_contentType),
-            (headerKey_host, headerVal_host)
-          ].HttpHeaders
-        ).body.parseJson.toZoomMeetings.toSeq
-        meetingsMatched = meetings --> partition(
-          it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
-        )
         notifiedLast = block:
           ctx.zoom.initNotifiedIfNotExists
-          ctx.zoom.loadNotified.timestamp.parseZulu
-        meetingsMatchedYesSorted = meetingsMatched.yes.sorted do (x, y: ZoomMeeting) -> int:
-          if x.startTime.parseZulu < y.startTime.parseZulu: -1
-          else: 1
-        meetingsMatchedYesSortedPlanned = meetingsMatchedYesSorted.filterIt(initTimestamp() < it.startTime.parseZulu)
-        # timespanTilEvent = ctx.zoom.
+          ctx.zoom.loadNotifiedTimestamp
+        preMeetingsMatchedYesSortedPlanned = collect:
+          for auth in ctx.zoom.authentication:
+            let
+              userMail = auth.mail
+              mailToID = {
+                userMail: auth.userID
+              }.toTable
+              account_id = auth.accountID
+              client_id = auth.clientID
+              client_secret = auth.clientSecret
+              base_bearer_token = encode(&"""{client_id}:{client_secret}""")
+              bearer_token = "Basic " & base_bearer_token
+              access_token = post(
+                &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
+                @[
+                  (headerKey_authorization, bearer_token),
+                  (headerKey_contentType, headerVal_contentType),
+                  (headerKey_host, headerVal_host)
+                ].HttpHeaders
+              ).body.parseJson{"access_token"}.getStr
+              bearer_access_token = &"Bearer {access_token}"
+              meetings = get(
+                &"{root_url}users/{mailToID[userMail]}/meetings",
+                @[
+                  (headerKey_authorization, bearer_access_token),
+                  (headerKey_contentType, headerVal_contentType),
+                  (headerKey_host, headerVal_host)
+                ].HttpHeaders
+              ).body.parseJson.toZoomMeetings.toSeq
+              meetingsMatched = meetings --> partition(
+                it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
+              )
+              meetingsMatchedYesSorted = meetingsMatched.yes.sorted do (x, y: ZoomMeeting) -> int:
+                if x.startTime.parseZulu < y.startTime.parseZulu: -1 else: 1
+            meetingsMatchedYesSorted.filterIt(initTimestamp() < it.startTime.parseZulu)
+        meetingsMatchedYesSortedPlanned = preMeetingsMatchedYesSortedPlanned --> flatten()
 
       echo "===================meetingsMatchedYesSorted==================="
       echo pretty %meetingsMatchedYesSortedPlanned
 
       if ctx.mail.enable:
-        for meeting in meetingsMatched.yes:
+        for meeting in meetingsMatchedYesSortedPlanned:
           ctx.sendMailDryRun(meeting)

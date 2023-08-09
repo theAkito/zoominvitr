@@ -32,8 +32,10 @@ Unstable API.
 * ~~Add good enough keyword filter via configuration~~
 * ~~Quit early on invalid configuration~~
 * ~~Error out on duplicate patternKeywords across Contexts~~
+* ~~Allow usage of multiple Zoom accounts for single Context~~
 * Save Contexts in Database
 * Minimise Zoom API calls
+* Add Documentation on how to setup Zoom API Access
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
