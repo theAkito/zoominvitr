@@ -44,7 +44,7 @@ type
                            ## to able to associate the E-Mail addresses\
                            ## from this object to the Meetings matching these keywords.
   ConfigZoom* = object
-    authentication*: ConfigZoomAuthentication
+    authentication*: seq[ConfigZoomAuthentication]
     patternKeywordsYes*: seq[ConfigZoomPatternKeyword] ## Gets Meetings, which match what is in here.
     patternKeywordsNo*: seq[ConfigZoomPatternKeyword]  ## Ignores Meetings, which match what is in here.
   ConfigContext* = object

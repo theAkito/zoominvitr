@@ -44,13 +44,15 @@ var
               ]
             )
           ],
-          authentication: ConfigZoomAuthentication(
-            mail: "mail@example.com",
-            userID: "ZoomUserID",
-            accountID: "",
-            clientID: "",
-            clientSecret: ""
-          )
+          authentication: @[
+            ConfigZoomAuthentication(
+              mail: "mail@example.com",
+              userID: "ZoomUserID",
+              accountID: "",
+              clientID: "",
+              clientSecret: ""
+            )
+          ]
         ),
         mail: ConfigPushMail(
           enable: false,
