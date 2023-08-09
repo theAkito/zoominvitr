@@ -25,6 +25,15 @@ This project's software requires only read-only permissions for your Zoom accoun
 16. On the top, it should show the following message.
     > Congratulations! Your app is now activated on the account
 
+### Get User ID
+
+1. Log into your Zoom account.
+2. Visit https://zoom.us/account/user#/
+3. Select the Master user, which is the original owner of the account, by clicking on the E-Mail address or Name ID on the left.
+4. Copy the URL in the address bar. It should look like this. https://zoom.us/user/abcabcfpaourour/profile
+5. Extract the User ID from the URL. From the above example, you would get `abcabcfpaourour`.
+6. Store this User ID.
+
 ## Resources
 * https://developers.zoom.us/docs/api/rest/using-zoom-apis/
 * https://developers.zoom.us/docs/integrations/oauth/

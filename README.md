@@ -15,7 +15,9 @@ Automatically invite peers to scheduled Zoom Meetings.
 No need for manual invitations.
 
 ## How
-WIP
+First, check out [how to get access to Zoom's API](HOW-TO-ZOOM-API.md).
+
+Run the `docker-compose.yml`, after adjusting its values & setting up your personalised Zoom Meetings configuration.
 
 ## Where
 Linux via Docker
@@ -34,6 +36,7 @@ Unstable API.
 * ~~Error out on duplicate patternKeywords across Contexts~~
 * ~~Allow usage of multiple Zoom accounts for single Context~~
 * ~~Add Documentation on how to setup Zoom API Access~~
+* ~~Add Documentation on how to retrieve User ID~~
 * Save Contexts in Database
 * Minimise Zoom API call amount
 
