@@ -33,9 +33,9 @@ Unstable API.
 * ~~Quit early on invalid configuration~~
 * ~~Error out on duplicate patternKeywords across Contexts~~
 * ~~Allow usage of multiple Zoom accounts for single Context~~
+* ~~Add Documentation on how to setup Zoom API Access~~
 * Save Contexts in Database
-* Minimise Zoom API calls
-* Add Documentation on how to setup Zoom API Access
+* Minimise Zoom API call amount
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
