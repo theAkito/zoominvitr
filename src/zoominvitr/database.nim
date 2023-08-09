@@ -74,6 +74,9 @@ proc initNotifiedIfNotExists*(config: ConfigZoom) =
 proc loadNotified*(config: ConfigZoom): DatabaseNotified =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
 
+proc loadNotifiedTimestamp*(config: ConfigZoom): Timestamp =
+  config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotifiedTimestamp
+
 
 when isMainModule:
   const redisTestList = [
