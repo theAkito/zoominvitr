@@ -37,6 +37,8 @@ Unstable API.
 * ~~Allow usage of multiple Zoom accounts for single Context~~
 * ~~Add Documentation on how to setup Zoom API Access~~
 * ~~Add Documentation on how to retrieve User ID~~
+* Verify automatic Docker Hub Deployment
+* Optimise Docker Compose YAML files
 * Save Contexts in Database
 * Minimise Zoom API call amount
 
