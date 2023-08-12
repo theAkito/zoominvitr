@@ -22,6 +22,12 @@ const
   rootTimestampStr  *                = $rootTimestamp
 
 
+template edit*(o, body: untyped): untyped =
+  block:
+    var it {.inject.} = `o`
+    `body`
+    it
+
 func defineLogLevel*(): Level =
   if debug: lvlDebug else: lvlInfo
 
