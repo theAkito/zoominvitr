@@ -23,6 +23,9 @@ var
     version: "appVersion",
     contexts: @[
       ConfigContext(
+        dateFormat: "yyyy-MM-dd",
+        timeFormat: "HH:mm",
+        timeZone: "Europe/Oslo",
         zoom: ConfigZoom(
           patternKeywordsYes: @[
             ConfigZoomPatternKeyword(
@@ -65,8 +68,8 @@ var
             startTLS: false
           ),
           mailReceiver: ConfigMailReceiver(
-            subjectTpl: "Invitation to {zoom.TOPIC}",
-            bodyTpl: "You are invited to {zoom.TOPIC}!\n\nPlease, join via the following link:\n\n{zoom.URL}",
+            subjectTpl: "Invitation to {zoom.TOPIC} on {zoom.START_DATE}",
+            bodyTpl: "You are invited to {zoom.TOPIC} at {zoom.START_TIME}!\n\nPlease, join via the following link:\n\n{zoom.URL}",
             mails: @[
               "friend1@example.com",
               "friend2@example.com",
@@ -155,7 +158,8 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
     config = conf
     return true
   try:
-    genDefaultConfig(path, name)
+    discard genDefaultConfig(path, name)
+    quit 0
   except:
     return false
   true
