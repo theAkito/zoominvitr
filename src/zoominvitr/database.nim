@@ -69,7 +69,7 @@ proc initNotifiedIfNotExists*(config: ConfigZoom) =
     key = n.keywordSignature
   if not key.keyExists:
     n.saveNotified
-    [("HSET", @[key, "timestamp", $initTimestamp(0)])].exec
+    [("HSET", @[key, "timestamp", $rootTimestampStr])].exec
 
 proc loadNotified*(config: ConfigZoom): DatabaseNotified =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
