@@ -48,6 +48,9 @@ type
     patternKeywordsYes*: seq[ConfigZoomPatternKeyword] ## Gets Meetings, which match what is in here.
     patternKeywordsNo*: seq[ConfigZoomPatternKeyword]  ## Ignores Meetings, which match what is in here.
   ConfigContext* = object
+    dateFormat*: string
+    timeFormat*: string
+    timeZone*: string
     zoom*: ConfigZoom
     mail*: ConfigPushMail
   ConfigMaster* = object
