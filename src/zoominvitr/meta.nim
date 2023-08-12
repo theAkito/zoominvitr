@@ -1,4 +1,5 @@
 from logging import Level, ConsoleLogger, newConsoleLogger
+from timestamp import initTimestamp
 
 const
   debug             * {.booldefine.} = false
@@ -17,6 +18,8 @@ const
   sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
   homepage          * {.strdefine.}  = sourcepage
   wikipage          * {.strdefine.}  = sourcepage
+  rootTimestamp     *                = initTimestamp(0)
+  rootTimestampStr  *                = $rootTimestamp
 
 
 func defineLogLevel*(): Level =
