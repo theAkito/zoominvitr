@@ -40,12 +40,6 @@ const
   headerKey_host = "Host"
   headerVal_host = "zoom.us"
 
-template edit(o, body: untyped): untyped =
-  block:
-    var it {.inject.} = `o`
-    `body`
-    it
-
 func matchKeywords(topic: string, keywords: seq[ConfigZoomPatternKeyword]): bool =
   for words in keywords:
     let state = words.statement
@@ -119,17 +113,9 @@ when isMainModule:
                   meetingsBody.parseJson.toZoomMeetings.toSeq
                 except CatchableError:
                   logger.log(lvlError, "Failed to parse the following body:\p" & meetingsBody)
-                  echo getCurrentExceptionMsg()
-                  echo getCurrentException().getStackTrace
-                  raise getCurrentException() 
-              # meetings = get(
-              #   &"{root_url}users/{mailToID[userMail]}/meetings?type=upcoming",
-              #   @[
-              #     (headerKey_authorization, bearer_access_token),
-              #     (headerKey_contentType, headerVal_contentType),
-              #     (headerKey_host, headerVal_host)
-              #   ].HttpHeaders
-              # ).body.parseJson.toZoomMeetings.toSeq
+                  logger.log(lvlError, getCurrentException().getStackTrace)
+                  logger.log(lvlError, getCurrentExceptionMsg())
+                  continue
             meetings --> partition(
               it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
             ).yes
