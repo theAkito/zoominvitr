@@ -1,4 +1,4 @@
-import json
+import ../meta, json, options, timestamp
 
 type
   ExceptionNoMeetingFound* = object of ValueError ## When invalid JSON is provided, no meeting are found.
@@ -8,7 +8,7 @@ type
     host_id: string
     topic: string
     `type`: int
-    start_time: string
+    start_time: Option[string]
     duration: int
     timezone: string
     created_at: string
@@ -19,7 +19,7 @@ type
     hostID*: string
     topic*: string
     mType*: int
-    startTime*: string
+    startTime*: Timestamp
     duration*: int
     timezone*: string
     createdAt*: string
@@ -37,7 +37,7 @@ iterator toZoomMeetings*(payload: JsonNode): ZoomMeeting {.gcsafe, raises: [Exce
       hostID: raw.host_id,
       topic: raw.topic,
       mType: raw.`type`,
-      startTime: raw.start_time,
+      startTime: try: raw.start_time.get.parseZulu except CatchableError: rootTimestamp,
       duration: raw.duration,
       timezone: raw.timezone,
       createdAt: raw.created_at,
