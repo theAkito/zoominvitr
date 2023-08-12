@@ -37,7 +37,7 @@ iterator toZoomMeetings*(payload: JsonNode): ZoomMeeting {.gcsafe, raises: [Exce
       hostID: raw.host_id,
       topic: raw.topic,
       mType: raw.`type`,
-      startTime: try: raw.start_time.get.parseZulu except CatchableError: rootTimestamp,
+      startTime: try: raw.start_time.get.parseZulu except UnpackDefect, TimestampOutOfRangeError, TimestampInvalidFormatError: rootTimestamp,
       duration: raw.duration,
       timezone: raw.timezone,
       createdAt: raw.created_at,
