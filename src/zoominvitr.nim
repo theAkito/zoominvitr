@@ -40,6 +40,12 @@ const
   headerKey_host = "Host"
   headerVal_host = "zoom.us"
 
+template edit(o, body: untyped): untyped =
+  block:
+    var it {.inject.} = `o`
+    `body`
+    it
+
 func matchKeywords(topic: string, keywords: seq[ConfigZoomPatternKeyword]): bool =
   for words in keywords:
     let state = words.statement
@@ -74,7 +80,7 @@ when isMainModule:
         notifiedLast = block:
           ctx.zoom.initNotifiedIfNotExists
           ctx.zoom.loadNotifiedTimestamp
-        preMeetingsMatchedYesSortedPlanned = collect:
+        preMeetingsMatchedYes = collect:
           for auth in ctx.zoom.authentication:
             let
               userMail = auth.mail
@@ -95,23 +101,47 @@ when isMainModule:
                 ].HttpHeaders
               ).body.parseJson{"access_token"}.getStr
               bearer_access_token = &"Bearer {access_token}"
-              meetings = get(
-                &"{root_url}users/{mailToID[userMail]}/meetings",
-                @[
+              urlZoomMeetings = parseUrl(&"{root_url}users/{mailToID[userMail]}/meetings").edit:
+                it.query = @[
+                  (key: "type", value: "upcoming_meetings"),
+                  (key: "page_size", value: "100")
+                ].QueryParams
+              meetingsBody = Request(
+                url: urlZoomMeetings,
+                headers: @[
                   (headerKey_authorization, bearer_access_token),
                   (headerKey_contentType, headerVal_contentType),
                   (headerKey_host, headerVal_host)
-                ].HttpHeaders
-              ).body.parseJson.toZoomMeetings.toSeq
-              meetingsMatched = meetings --> partition(
-                it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
-              )
-              meetingsMatchedYesSorted = meetingsMatched.yes.sorted do (x, y: ZoomMeeting) -> int:
-                if x.startTime.parseZulu < y.startTime.parseZulu: -1 else: 1
-            meetingsMatchedYesSorted.filterIt(initTimestamp() < it.startTime.parseZulu)
-        meetingsMatchedYesSortedPlanned = preMeetingsMatchedYesSortedPlanned --> flatten()
+                ].HttpHeaders,
+                verb: "GET"
+              ).fetch().body
+              meetings = try:
+                  meetingsBody.parseJson.toZoomMeetings.toSeq
+                except CatchableError:
+                  logger.log(lvlError, "Failed to parse the following body:\p" & meetingsBody)
+                  echo getCurrentExceptionMsg()
+                  echo getCurrentException().getStackTrace
+                  raise getCurrentException() 
+              # meetings = get(
+              #   &"{root_url}users/{mailToID[userMail]}/meetings?type=upcoming",
+              #   @[
+              #     (headerKey_authorization, bearer_access_token),
+              #     (headerKey_contentType, headerVal_contentType),
+              #     (headerKey_host, headerVal_host)
+              #   ].HttpHeaders
+              # ).body.parseJson.toZoomMeetings.toSeq
+            meetings --> partition(
+              it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
+            ).yes
+        meetingsMatchedYes = preMeetingsMatchedYes --> flatten()
+      echo "===================meetingsMatchedYes==================="
+      echo pretty %meetingsMatchedYes
+      let
+        # meetingsMatchedYesSorted = meetingsMatchedYes.sorted do (x, y: ZoomMeeting) -> int:
+        #   if x.startTime.parseZulu < y.startTime.parseZulu: -1 else: 1
+        meetingsMatchedYesSortedPlanned = meetingsMatchedYes.filterIt(initTimestamp() < it.startTime)
 
-      echo "===================meetingsMatchedYesSorted==================="
+      echo "===================meetingsMatchedYesSortedPlanned==================="
       echo pretty %meetingsMatchedYesSortedPlanned
 
       if ctx.mail.enable:
