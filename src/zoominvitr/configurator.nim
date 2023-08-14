@@ -5,6 +5,7 @@ import
   ],
   std/[
     segfaults,
+    strformat,
     sequtils,
     json,
     os,
@@ -159,6 +160,8 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
     return true
   try:
     discard genDefaultConfig(path, name)
+    logger.log(lvlWarn, &"""Generated new config file at "{pathFull}"!""")
+    logger.log(lvlWarn, &"""Please, fill out the needed configuration in that file & restart the application, afterwards!""")
     quit 0
   except:
     return false
