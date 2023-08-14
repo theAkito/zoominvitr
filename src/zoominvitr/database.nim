@@ -19,21 +19,9 @@ import
     segfaults,
     sequtils,
     strutils,
-    json,
-    os,
-    options,
-    tables,
-    asyncdispatch,
-    times,
-    strformat,
-    strtabs,
-    logging,
-    random,
-    sugar,
-    threadpool
+    options
   ],
   pkg/[
-    puppy,
     zero_functional,
     ready,
     timestamp
