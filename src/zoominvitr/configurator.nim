@@ -69,7 +69,7 @@ var
           ),
           mailReceiver: ConfigMailReceiver(
             subjectTpl: "Invitation to {zoom.TOPIC} on {zoom.START_DATE}",
-            bodyTpl: "You are invited to {zoom.TOPIC} at {zoom.START_TIME}!\n\nPlease, join via the following link:\n\n{zoom.URL}",
+            bodyTpl: "You are invited to {zoom.TOPIC} at {zoom.START_TIME}!\p\pPlease, join via the following link:\p\p{zoom.URL}\p\p\p\p\pThis E-Mail was automatically generated and sent. Please do not reply.",
             mails: @[
               "friend1@example.com",
               "friend2@example.com",
