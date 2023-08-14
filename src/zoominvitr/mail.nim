@@ -17,8 +17,8 @@ proc fillPlaceholders(tpl: string, meeting: ZoomMeeting, dateFormat, timeFormat,
   tpl.multiReplace(
     ("{zoom.TOPIC}", meeting.topic),
     ("{zoom.URL}", meeting.joinUrl),
-    ("{zoom.START_DATE}", meeting.startTime.formatWithTimezone(dateFormat, timeFormat, timeZone)),
-    ("{zoom.START_TIME}", meeting.startTime.formatWithTimezone(dateFormat, timeFormat, timeZone))
+    ("{zoom.START_DATE}", meeting.startTime.formatWithTimezone(dateFormat, timeZone)),
+    ("{zoom.START_TIME}", meeting.startTime.formatWithTimezone(timeFormat, timeZone))
   )
 
 proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting) =
