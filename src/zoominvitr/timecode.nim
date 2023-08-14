@@ -7,5 +7,8 @@ import
     timezones
   ]
 
-proc formatWithTimezone*(timestamp: Timestamp, dateFormat, timeFormat, timeZone: string): string =
-  timestamp.toDateTime.inZone(timeZone.tzInfo.timezone).format(dateFormat)
+proc formatWithTimezone*(timestamp: Timestamp, format, timeZone: string): string =
+  timestamp.toDateTime.inZone(timeZone.tzInfo.timezone).format(format)
+
+proc formatWithTimezone*(timestamp: Timestamp, timeZone: string): string =
+  $timestamp.toDateTime.inZone(timeZone.tzInfo.timezone)

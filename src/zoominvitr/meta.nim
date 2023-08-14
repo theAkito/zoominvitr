@@ -20,7 +20,7 @@ const
   sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
   homepage          * {.strdefine.}  = sourcepage
   wikipage          * {.strdefine.}  = sourcepage
-  rootTimestamp     *                = initTimestamp(2001, 11, 22)
+  rootTimestamp     *                = initTimestamp(2001, 11, 22) ## Zero raises a parsing exception, so a random later date is used.
   rootTimestampStr  *                = $rootTimestamp
 
 
