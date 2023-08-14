@@ -2,6 +2,11 @@
   Redis Database
 
   For storing which meetings were already notified about & at what interval state.
+
+
+  For information on Redis commands visit the following website.
+
+  https://redis.io/commands/
 ]##
 
 import
@@ -47,12 +52,24 @@ proc exec(cmd: openArray[(string, seq[string])]): RedisReply {.discardable.} =
     result = redis.receive
 
 proc keyExists(key: varargs[string]): bool =
+  ## https://redis.io/commands/exists/
   [("EXISTS", key.toSeq)].exec.to(int) == key.len
 
 proc saveNotified(n: DatabaseNotified): RedisReply {.discardable.} =
+  ## https://redis.io/commands/multi/
+  ## https://redis.io/commands/hmset/
+  ## https://redis.io/commands/exec/
   [
     ("MULTI", @[]),
     ("HMSET", @[n.keywordSignature, "timestamp", n.timestamp]),
+    ("EXEC", @[])
+  ].exec
+
+proc deleteNotified(n: DatabaseNotified): RedisReply {.discardable.} =
+  ## https://redis.io/commands/del/
+  [
+    ("MULTI", @[]),
+    ("DEL", @[n.keywordSignature]),
     ("EXEC", @[])
   ].exec
 
@@ -62,6 +79,9 @@ proc loadNotified(n: DatabaseNotified): seq[string] =
 proc saveNotified*(config: ConfigZoom) =
   config.createDatabaseNotified.saveNotified
 
+proc deleteNotified*(config: ConfigZoom) =
+  config.createDatabaseNotified.deleteNotified
+
 proc initNotifiedIfNotExists*(config: ConfigZoom) =
   ## https://redis.io/commands/hset/
   let
@@ -69,7 +89,7 @@ proc initNotifiedIfNotExists*(config: ConfigZoom) =
     key = n.keywordSignature
   if not key.keyExists:
     n.saveNotified
-    [("HSET", @[key, "timestamp", $rootTimestampStr])].exec
+    [("HSET", @[key, "timestamp", rootTimestampStr])].exec
 
 proc loadNotified*(config: ConfigZoom): DatabaseNotified =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
