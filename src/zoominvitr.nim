@@ -125,20 +125,19 @@ when isMainModule:
               it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
             ).yes
         meetingsMatchedYes = preMeetingsMatchedYes --> flatten()
-      when meta.debug: echo "===================meetingsMatchedYes==================="
-      logger.log lvlDebug, pretty %meetingsMatchedYes
-
-      if meetingsMatchedYes.len == 0:
-        logger.log(lvlDebug, &"""No meetings matched. Skip!""")
-        continue
-
-      let
-        schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
-          if x.tType.ord < y.tType.ord: -1 else: 1
-        nextMeeting = meetingsMatchedYes[0]
+        nextMeeting = if meetingsMatchedYes.len == 0:
+            logger.log(lvlDebug, &"""No meetings matched. Skip!""")
+            continue
+          else:
+            meetingsMatchedYes[meetingsMatchedYes.low]
         nextMeetingStartTimeTimestamp = nextMeeting.startTime
         nextMeetingStartTime = nextMeetingStartTimeTimestamp.toDateTime
         nextMeetingStartTimeStr = nextMeetingStartTimeTimestamp.formatWithTimezone("""yyyy-MM-dd HH:mm zzz""", ctx.timeZone)
+        schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
+          if x.tType.ord < y.tType.ord: -1 else: 1
+
+      when meta.debug: echo "===================meetingsMatchedYes==================="
+      logger.log lvlDebug, pretty %meetingsMatchedYes
 
       if ctx.mail.enable:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = dryRunMail) =
