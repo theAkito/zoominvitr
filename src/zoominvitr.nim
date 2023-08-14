@@ -123,56 +123,35 @@ when isMainModule:
         meetingsMatchedYes = preMeetingsMatchedYes --> flatten()
       when meta.debug: echo "===================meetingsMatchedYes==================="
       logger.log lvlDebug, pretty %meetingsMatchedYes
-      #let
-        # meetingsMatchedYesSorted = meetingsMatchedYes.sorted do (x, y: ZoomMeeting) -> int:
-        #   if x.startTime.parseZulu < y.startTime.parseZulu: -1 else: 1
-        #meetingsMatchedYesSortedPlanned = meetingsMatchedYes.filterIt(initTimestamp() < it.startTime)
-
-      # echo "===================meetingsMatchedYesSortedPlanned==================="
-      # echo pretty %meetingsMatchedYesSortedPlanned
-
-      # if ctx.mail.enable:
-      #   # for meeting in meetingsMatchedYesSortedPlanned:
-      #   for meeting in meetingsMatchedYes:
-      #     ctx.sendMailDryRun(meeting)
 
       let
         schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
           if x.tType.ord < y.tType.ord: -1 else: 1
+        nextMeeting = meetingsMatchedYes[0]
+        nextMeetingStartTime = nextMeeting.startTime.toDateTime
 
-      for sched in schedulesSorted:
-        let now = now()
-        case sched.tType:
-          of ConfigPushScheduleTimeType.DAYS:
-            let daysBefore = (meetingsMatchedYes[0].startTime.toDateTime - initDuration(days = sched.amount))
-            if daysBefore < now:
-              if daysBefore < notifiedLast.toDateTime:
-                logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.DAYS] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} was already notified about!")
-                continue
-              else:
-                ctx.sendMailDryRun(meetingsMatchedYes[0])
-                ctx.zoom.saveNotified
+      if ctx.mail.enable:
+        proc processSendMail(timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = true) =
+          let
+            timeTypeStr = $timeType
+            timeUnitsBefore = case timeType:
+              of ConfigPushScheduleTimeType.DAYS:
+                nextMeetingStartTime - initDuration(days = timeAmount)
+              of ConfigPushScheduleTimeType.HOURS:
+                nextMeetingStartTime - initDuration(hours = timeAmount)
+              of ConfigPushScheduleTimeType.MINUTES:
+                nextMeetingStartTime - initDuration(minutes = timeAmount)
+
+          if timeUnitsBefore < now():
+            if timeUnitsBefore < notifiedLast.toDateTime:
+              logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting at {nextMeetingStartTime} was already notified about!")
+              return
             else:
-              logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.DAYS] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} will not be notified about, yet, because the time has not yet arrived!")
-          of ConfigPushScheduleTimeType.HOURS:
-            let hoursBefore = (meetingsMatchedYes[0].startTime.toDateTime - initDuration(hours = sched.amount))
-            if hoursBefore < now:
-              if hoursBefore < notifiedLast.toDateTime:
-                logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.HOURS] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} was already notified about!")
-                continue
-              else:
-                ctx.sendMailDryRun(meetingsMatchedYes[0])
-                ctx.zoom.saveNotified
-            else:
-              logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.HOURS] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} will not be notified about, yet, because the time has not yet arrived!")
-          of ConfigPushScheduleTimeType.MINUTES:
-            let minutesBefore = (meetingsMatchedYes[0].startTime.toDateTime - initDuration(minutes = sched.amount))
-            if minutesBefore < now:
-              if minutesBefore < notifiedLast.toDateTime:
-                logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.MINUTES] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} was already notified about!")
-                continue
-              else:
-                ctx.sendMailDryRun(meetingsMatchedYes[0])
-                ctx.zoom.saveNotified
-            else:
-              logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.MINUTES] Meeting at {meetingsMatchedYes[0].startTime.toDateTime} will not be notified about, yet, because the time has not yet arrived!")
+              if dryRun: ctx.sendMailDryRun(nextMeeting)
+              else: ctx.sendMail(nextMeeting)
+              ctx.zoom.saveNotified
+          else:
+            logger.log(lvlDebug, &"[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting at {nextMeetingStartTime} will not be notified about, yet, because the time has not yet arrived!")
+
+        for sched in schedulesSorted:
+          processSendMail(sched.tType, sched.amount)
