@@ -70,6 +70,7 @@ task dbuild, "Debug Build project.":
             --define:appRevision:"{buildRevision}" \
             --define:appDate:"{buildDate}" \
             --define:debug:true \
+            --define:dryRunMail:true \
             --debuginfo:on \
             --out:zoominvitr_debug \
             src/zoominvitr

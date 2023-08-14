@@ -4,6 +4,7 @@ from timestamp import initTimestamp, `$`
 const
   debug             * {.booldefine.} = false
   debugMail         * {.booldefine.} = false ## Whether debug messages should be echoed during SMTP connections.
+  dryRunMail        * {.booldefine.} = false ## Whether mail sending should be done in dry run mode, i.e. no mail is ever sent.
   lineEnd           * {.strdefine.}  = "\n"
   defaultDateFormat * {.strdefine.}  = "yyyy-MM-dd'T'HH:mm:ss'.'fffffffff'Z'"
   logMsgPrefix      * {.strdefine.}  = "[$levelname]:[$datetime]"
