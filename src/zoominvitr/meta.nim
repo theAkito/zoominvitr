@@ -1,8 +1,9 @@
 from logging import Level, ConsoleLogger, newConsoleLogger
-from timestamp import initTimestamp
+from timestamp import initTimestamp, `$`
 
 const
   debug             * {.booldefine.} = false
+  debugMail         * {.booldefine.} = false ## Whether debug messages should be echoed during SMTP connections.
   lineEnd           * {.strdefine.}  = "\n"
   defaultDateFormat * {.strdefine.}  = "yyyy-MM-dd'T'HH:mm:ss'.'fffffffff'Z'"
   logMsgPrefix      * {.strdefine.}  = "[$levelname]:[$datetime]"
@@ -18,7 +19,7 @@ const
   sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
   homepage          * {.strdefine.}  = sourcepage
   wikipage          * {.strdefine.}  = sourcepage
-  rootTimestamp     *                = initTimestamp(0)
+  rootTimestamp     *                = initTimestamp(2001, 11, 22)
   rootTimestampStr  *                = $rootTimestamp
 
 
