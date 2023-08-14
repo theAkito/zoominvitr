@@ -1,6 +1,7 @@
 import ../meta, json, options, timestamp
 
 type
+  ExceptionAuthenticationFailed* = object of ValueError ## When authentication to Zoom failed. First error that appears, when configuration file has not been edited, yet.
   ExceptionNoMeetingFound* = object of ValueError ## When invalid JSON is provided, no meeting are found.
   RawZoomMeeting = object ## 1:1 representation of raw JSON
     uuid: string
@@ -28,7 +29,7 @@ type
 iterator toZoomMeetings*(payload: JsonNode): ZoomMeeting {.gcsafe, raises: [ExceptionNoMeetingFound, KeyError, ValueError].} =
   ## Takes entire response payload from Zoom API's
   ## `https://api.zoom.us/v2/users/<accountId>/meetings`
-  let rawMeetings = if payload.hasKey("meetings"): payload["meetings"].getElems else: echo pretty %payload; raise ExceptionNoMeetingFound.newException("No meetings were found in the provided JSON!")
+  let rawMeetings = if payload.hasKey("meetings"): payload["meetings"].getElems else: raise ExceptionNoMeetingFound.newException("No meetings were found in the provided JSON!")
   for jMeeting in rawMeetings:
     let raw = jMeeting.to(RawZoomMeeting)
     yield ZoomMeeting(

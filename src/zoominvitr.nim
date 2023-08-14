@@ -68,9 +68,7 @@ when isMainModule:
     quit 1
 
   while true:
-    defer: sleep 60_000
     for ctx in config.contexts:
-      defer: sleep 10000
       when meta.debug: ctx.zoom.deleteNotified
       let
         notifiedLast = block:
@@ -111,8 +109,13 @@ when isMainModule:
                 ].HttpHeaders,
                 verb: "GET"
               ).fetch().body
-              meetings = try:
-                  meetingsBody.parseJson.toZoomMeetings.toSeq
+              meetings = block:
+                let jMeetingsBody = meetingsBody.parseJson
+                if jMeetingsBody{"code"}.getInt(0) == 124:
+                  logger.log(lvlError, """Authentication to Zoom API failed! Check your configuration file! Did you configure this server via its configuration file, yet?""")
+                  continue
+                try:
+                  jMeetingsBody.toZoomMeetings.toSeq
                 except CatchableError:
                   logger.log(lvlError, "Failed to parse the following body:\p" & meetingsBody)
                   logger.log(lvlError, getCurrentException().getStackTrace)
@@ -124,6 +127,10 @@ when isMainModule:
         meetingsMatchedYes = preMeetingsMatchedYes --> flatten()
       when meta.debug: echo "===================meetingsMatchedYes==================="
       logger.log lvlDebug, pretty %meetingsMatchedYes
+
+      if meetingsMatchedYes.len == 0:
+        logger.log(lvlDebug, &"""No meetings matched. Skip!""")
+        continue
 
       let
         schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
@@ -158,3 +165,5 @@ when isMainModule:
 
         for sched in schedulesSorted:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
+      sleep 10000
+    sleep 60_000
