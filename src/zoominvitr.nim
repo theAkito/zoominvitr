@@ -69,7 +69,7 @@ when isMainModule:
 
   while true:
     for ctx in config.contexts:
-      when meta.debug: ctx.zoom.deleteNotified
+      when meta.debugResetNotify: ctx.zoom.deleteNotified
       let
         notifiedLast = block:
           ctx.zoom.initNotifiedIfNotExists
@@ -136,8 +136,9 @@ when isMainModule:
         schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
           if x.tType.ord < y.tType.ord: -1 else: 1
 
-      when meta.debug: echo "===================meetingsMatchedYes==================="
-      logger.log lvlDebug, pretty %meetingsMatchedYes
+      when meta.debugTrace:
+        logger.log lvlDebug, "===================meetingsMatchedYes==================="
+        logger.log lvlDebug, pretty %meetingsMatchedYes
 
       if ctx.mail.enable:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = dryRunMail) =
@@ -153,14 +154,14 @@ when isMainModule:
             timeUnitsBefore = nextMeetingStartTime - duration
           if timeUnitsBefore < now():
             if timeUnitsBefore < notifiedLast.toDateTime:
-              logger.log(lvlDebug, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" was already notified about!""")
+              logger.log(lvlInfo, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" was already notified about!""")
               return
             else:
               if dryRun: ctx.sendMailDryRun(nextMeeting)
               else: ctx.sendMail(nextMeeting)
               ctx.zoom.saveNotified
           else:
-            logger.log(lvlDebug, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" will not be notified about, yet, because the time has not yet arrived!""")
+            logger.log(lvlInfo, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" will not be notified about, yet, because the time has not yet arrived!""")
 
         for sched in schedulesSorted:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
