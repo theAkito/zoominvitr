@@ -4,8 +4,10 @@ from timestamp import initTimestamp, `$`
 const
   debug             * {.booldefine.} = false
   debugMail         * {.booldefine.} = false ## Whether debug messages should be echoed during SMTP connections.
+  debugResetNotify  * {.booldefine.} = false ## Whether `notifiedLast` should be reset on each loop iteration. Useful for repeatedly pretending, no notification was ever sent.
+  debugTrace        * {.booldefine.} = false ## Whether trace level HTML & JSON responses should be shown at each step of the process.
   dryRunMail        * {.booldefine.} = false ## Whether mail sending should be done in dry run mode, i.e. no mail is ever sent.
-  lineEnd           * {.strdefine.}  = "\n"
+  lineEnd           * {.strdefine.}  = "\p"
   defaultDateFormat * {.strdefine.}  = "yyyy-MM-dd'T'HH:mm:ss'.'fffffffff'Z'"
   logMsgPrefix      * {.strdefine.}  = "[$levelname]:[$datetime]"
   logMsgInter       * {.strdefine.}  = " ~ "
