@@ -27,13 +27,16 @@ proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting) =
   mail.connect(ctx.mail.mailSender.serverSMTP, ctx.mail.mailSender.portSMTP.Port)
   if ctx.mail.mailSender.startTLS: mail.startTls()
   mail.auth(ctx.mail.mailSender.user, ctx.mail.mailSender.password)
-  mail.sendMail(ctx.mail.mailSender.mail, ctx.mail.mailReceiver.mails,
-    $createMessage(
-      ctx.mail.mailReceiver.subjectTpl.fillPlaceholders(meeting, ctx.dateFormat, ctx.timeFormat, ctx.timeZone),
-      ctx.mail.mailReceiver.bodyTpl.fillPlaceholders(meeting, ctx.dateFormat, ctx.timeFormat, ctx.timeZone),
-      ctx.mail.mailReceiver.mails
+  for recv in ctx.mail.mailReceiver.mails:
+    mail.sendMail(ctx.mail.mailSender.mail, @[recv],
+      $createMessage(
+        ctx.mail.mailReceiver.subjectTpl.fillPlaceholders(meeting, ctx.dateFormat, ctx.timeFormat, ctx.timeZone),
+        ctx.mail.mailReceiver.bodyTpl.fillPlaceholders(meeting, ctx.dateFormat, ctx.timeFormat, ctx.timeZone),
+        @[recv],
+        @[],
+        [("FROM", """***REMOVED***""")]
+      )
     )
-  )
 
 proc sendMailDryRun*(ctx: ConfigContext, meeting: ZoomMeeting) =
   let mail = newSmtp(useSsl = true, debug = meta.debugMail)
