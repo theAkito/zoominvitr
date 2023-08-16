@@ -144,6 +144,7 @@ when isMainModule:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = dryRunMail) =
           let
             timeTypeStr = $timeType
+            tplStrBefore = &"{timeAmount} {timeTypeStr} before the meeting"
             duration = case timeType:
               of ConfigPushScheduleTimeType.DAYS:
                 initDuration(days = timeAmount)
@@ -154,14 +155,14 @@ when isMainModule:
             timeUnitsBefore = nextMeetingStartTime - duration
           if timeUnitsBefore < now():
             if timeUnitsBefore < notifiedLast.toDateTime:
-              logger.log(lvlInfo, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" was already notified about!""")
+              logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" was already notified about!""")
               return
             else:
               if dryRun: ctx.sendMailDryRun(nextMeeting)
               else: ctx.sendMail(nextMeeting)
               ctx.zoom.saveNotified
           else:
-            logger.log(lvlInfo, &"""[ConfigPushScheduleTimeType.{timeTypeStr}] Meeting "{topic}" at "{nextMeetingStartTimeStr}" will not be notified about, yet, because the time has not yet arrived!""")
+            logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")
 
         for sched in schedulesSorted:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
