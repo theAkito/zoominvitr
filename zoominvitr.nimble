@@ -73,7 +73,7 @@ task docker_build_prod, "Build Production Docker.":
             --opt:speed \
             --out:app \
             src/zoominvitr && \
-          strip zoominvitr \
+          strip app \
             --strip-all \
             --remove-section=.comment \
             --remove-section=.note.gnu.gold-version \

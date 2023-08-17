@@ -39,7 +39,7 @@ Unstable API.
 * ~~Add Documentation on how to retrieve User ID~~
 * ~~Change Licence to AGPL~~
 * ~~Open Source~~
-* Verify automatic Docker Hub Deployment
+* ~~Verify automatic Docker Hub Deployment~~
 * Optimise Docker Compose YAML files
 * Cache Zoom responses for 1, 12 or 24 hours
 * Save Contexts in Database
