@@ -70,6 +70,10 @@ task docker_build_prod, "Build Production Docker.":
             --define:appRevision:"{buildRevision}" \
             --define:appDate:"{buildDate}" \
             --define:danger \
+            --define:useOpenssl3 \
+            --dynlibOverride:ssl \
+            --passL:"-lssl -lcrypto" \
+            --define:ssl \
             --opt:speed \
             --out:app \
             src/zoominvitr && \
@@ -80,6 +84,21 @@ task docker_build_prod, "Build Production Docker.":
             --remove-section=.note \
             --remove-section=.note.gnu.build-id \
             --remove-section=.note.ABI-tag
+       """
+task docker_build_debug, "Build Debug Docker.":
+  exec &"""nim c \
+            --define:appVersion:"{buildVersion}" \
+            --define:appRevision:"{buildRevision}" \
+            --define:appDate:"{buildDate}" \
+            --define:debug:true \
+            --define:dryRunMail:true \
+            --debuginfo:on \
+            --define:useOpenssl3 \
+            --dynlibOverride:ssl \
+            --passL:"-lssl -lcrypto" \
+            --define:ssl \
+            --out:app \
+            src/zoominvitr
        """
 task dbuild, "Debug Build project.":
   exec &"""nim c \
