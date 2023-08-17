@@ -1,13 +1,21 @@
 version: '3.9'
 services:
-  cache:
-    image: redis:7-alpine
+  app:
+    image: akito13/zoominvitr
+    container_name: zoominvitr
+    user: "1000:1000"
     restart: on-failure
-    ports:
-      - '127.0.0.1:6379:6379'
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    container_name: zoominvitr_db
+    user: "1000:1000"
+    restart: on-failure
+    # Redis Options
+    # https://stackoverflow.com/a/74031727
+    # https://raw.githubusercontent.com/redis/redis/7.0/redis.conf
     command: redis-server --save 20 1 --loglevel warning
-    volumes: 
-      - cache:/data
-volumes:
-  cache:
-    driver: local
+    volumes:
+      - ./redis:/data
