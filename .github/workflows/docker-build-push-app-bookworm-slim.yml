@@ -30,7 +30,7 @@ jobs:
             suffix=
           tags: |
             type=edge,branch=master
-            type=raw,value=bookworm-slim
+            type=raw,value=alpine
             type=schedule
             type=ref,event=branch
             type=ref,event=pr
