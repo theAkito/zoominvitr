@@ -64,6 +64,23 @@ task fbuild, "Build project.":
             --remove-section=.note.gnu.build-id \
             --remove-section=.note.ABI-tag
        """
+task docker_build_prod, "Build Production Docker.":
+  exec &"""nim c \
+            --define:appVersion:"{buildVersion}" \
+            --define:appRevision:"{buildRevision}" \
+            --define:appDate:"{buildDate}" \
+            --define:danger \
+            --opt:speed \
+            --out:app \
+            src/zoominvitr && \
+          strip zoominvitr \
+            --strip-all \
+            --remove-section=.comment \
+            --remove-section=.note.gnu.gold-version \
+            --remove-section=.note \
+            --remove-section=.note.gnu.build-id \
+            --remove-section=.note.ABI-tag
+       """
 task dbuild, "Debug Build project.":
   exec &"""nim c \
             --define:appVersion:"{buildVersion}" \
