@@ -10,5 +10,5 @@ RUN \
 
 FROM alpine
 COPY --from=build /app/app /
-RUN apk --no-cache add libcurl && rm -rf /var/cache/apk/*
+RUN apk --no-cache add libcurl libressl-dev && rm -rf /var/cache/apk/*
 ENTRYPOINT ["/app"]
