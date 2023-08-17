@@ -7,6 +7,8 @@ services:
     restart: on-failure
     depends_on:
       - redis
+    volumes:
+      - ./zoominvitr/app:/data
 
   redis:
     image: redis:7-alpine
@@ -18,4 +20,4 @@ services:
     # https://raw.githubusercontent.com/redis/redis/7.0/redis.conf
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - ./redis:/data
+      - ./zoominvitr/database:/data
