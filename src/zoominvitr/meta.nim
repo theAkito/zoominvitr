@@ -13,6 +13,7 @@ const
   logMsgInter       * {.strdefine.}  = " ~ "
   logMsgSuffix      * {.strdefine.}  = " -> "
   hostRedis         * {.strdefine.}  = "redis"
+  portRedis         * {.intdefine.}  = 6379
   appVersion        * {.strdefine.}  = "0.1.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
