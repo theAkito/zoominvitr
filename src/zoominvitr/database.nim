@@ -19,7 +19,8 @@ import
     segfaults,
     sequtils,
     strutils,
-    options
+    options,
+    net
   ],
   pkg/[
     zero_functional,
@@ -31,7 +32,18 @@ export DatabaseNotified
 export timestamp
 
 let
-  redis = newRedisConn(hostRedis)
+  redis = block:
+    let socket = newSocket()
+    try:
+      ## Check if connections exist,
+      ## because we cannot catch the LibraryError,
+      ## when the connection fails on `newRedisConn`.
+      socket.connect(hostRedis, portRedis.Port)
+    except OSError:
+      raise DatabaseConnectionDefect.newException "Failed to connect to Redis database! Is your database server running?"
+    finally:
+      socket.close
+    newRedisConn(hostRedis, portRedis.Port)
 
 proc exec(cmd: openArray[(string, seq[string])]): RedisReply {.discardable.} =
   redis.send cmd

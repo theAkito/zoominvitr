@@ -11,7 +11,7 @@ import
 let logger = getLogger("model/database")
 
 type
-  DatabaseDeserialisationDefect* = object
+  DatabaseConnectionDefect* = object of Defect
   DatabaseNotified* = object
     keywordSignature*: string ## Hash-like thing of `patternKeywordsYes` & `patternKeywordsNo`.
     timestamp*: string        ## Timestamp Library
