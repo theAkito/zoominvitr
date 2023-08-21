@@ -12,6 +12,7 @@ const
   logMsgPrefix      * {.strdefine.}  = "[$levelname]:[$datetime]"
   logMsgInter       * {.strdefine.}  = " ~ "
   logMsgSuffix      * {.strdefine.}  = " -> "
+  hostRedis         * {.strdefine.}  = "redis"
   appVersion        * {.strdefine.}  = "0.1.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
