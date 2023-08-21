@@ -31,8 +31,7 @@ export DatabaseNotified
 export timestamp
 
 let
-  # redis = newRedisConn("redis")
-  redis = newRedisConn()
+  redis = newRedisConn(hostRedis)
 
 proc exec(cmd: openArray[(string, seq[string])]): RedisReply {.discardable.} =
   redis.send cmd
