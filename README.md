@@ -26,8 +26,8 @@ Linux via Docker
 * Reliability
 
 ## Project Status
-Before Pre-Alpha.
-Unstable API.
+Beta.
+Testing API.
 
 ## TODO
 * ~~Support E-Mail~~
@@ -40,7 +40,8 @@ Unstable API.
 * ~~Change Licence to AGPL~~
 * ~~Open Source~~
 * ~~Verify automatic Docker Hub Deployment~~
-* Optimise Docker Compose YAML files
+* ~~Make SSL/TLS work on Alpine inside Docker~~
+* ~~Optimise Docker Compose YAML files~~
 * Cache Zoom responses for 1, 12 or 24 hours
 * Save Contexts in Database
 * Minimise Zoom API call amount

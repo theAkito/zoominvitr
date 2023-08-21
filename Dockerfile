@@ -7,10 +7,6 @@ WORKDIR /app
 COPY . .
 
 RUN \
-  apk --no-cache add \
-    libcurl \
-    openssl-dev && \
-  rm -rf /var/cache/apk/* && \
   nimble install -dy && \
   nimble "${nimble_task_build}"
 
