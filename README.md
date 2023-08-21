@@ -5,7 +5,7 @@
 
 ![Last Commit](https://img.shields.io/github/last-commit/theAkito/zoominvitr?style=plastic)
 
-[![GitHub](https://img.shields.io/badge/license-GPL--3.0-informational?style=plastic)](https://www.gnu.org/licenses/gpl-3.0.txt)
+[![Licence](https://img.shields.io/badge/license-AGPL--3.0-informational?style=plastic)](https://www.gnu.org/licenses/agpl-3.0.txt)
 [![Liberapay patrons](https://img.shields.io/liberapay/patrons/Akito?style=plastic)](https://liberapay.com/Akito/)
 
 ## What
@@ -42,6 +42,7 @@ Testing API.
 * ~~Verify automatic Docker Hub Deployment~~
 * ~~Make SSL/TLS work on Alpine inside Docker~~
 * ~~Optimise Docker Compose YAML files~~
+* ~~Improve Error Handling on Database Connection Defect~~
 * Cache Zoom responses for 1, 12 or 24 hours
 * Save Contexts in Database
 * Minimise Zoom API call amount

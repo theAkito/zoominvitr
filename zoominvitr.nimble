@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Akito <the@akito.ooo>"
-description   = "Push Zoom invitations."
+description   = "Automatically send invitations to planned Zoom meetings."
 license       = "GPL-3.0-or-later"
 srcDir        = "src"
 bin           = @["zoominvitr"]
@@ -73,6 +73,7 @@ task dbuild, "Debug Build project.":
             --define:appDate:"{buildDate}" \
             --define:debug:true \
             --define:dryRunMail:true \
+            --define:debugResetNotify:true \
             --define:hostRedis:127.0.0.1 \
             --define:configPath:"" \
             --debuginfo:on \
@@ -105,6 +106,7 @@ task docker_build_debug, "Build Debug Docker.":
             --define:appDate:"{buildDate}" \
             --define:debug:true \
             --define:dryRunMail:true \
+            --define:debugResetNotify:true \
             --define:hostRedis:redis \
             --define:configPath:/data \
             --debuginfo:on \
