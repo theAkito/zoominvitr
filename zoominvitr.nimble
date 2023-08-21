@@ -52,6 +52,8 @@ task fbuild, "Build project.":
             --define:appVersion:"{buildVersion}" \
             --define:appRevision:"{buildRevision}" \
             --define:appDate:"{buildDate}" \
+            --define:hostRedis:127.0.0.1 \
+            --define:configPath:"" \
             --define:danger \
             --opt:speed \
             --out:zoominvitr \
@@ -64,16 +66,27 @@ task fbuild, "Build project.":
             --remove-section=.note.gnu.build-id \
             --remove-section=.note.ABI-tag
        """
+task dbuild, "Debug Build project.":
+  exec &"""nim c \
+            --define:appVersion:"{buildVersion}" \
+            --define:appRevision:"{buildRevision}" \
+            --define:appDate:"{buildDate}" \
+            --define:debug:true \
+            --define:dryRunMail:true \
+            --define:hostRedis:127.0.0.1 \
+            --define:configPath:"" \
+            --debuginfo:on \
+            --out:zoominvitr_debug \
+            src/zoominvitr
+       """
 task docker_build_prod, "Build Production Docker.":
   exec &"""nim c \
             --define:appVersion:"{buildVersion}" \
             --define:appRevision:"{buildRevision}" \
             --define:appDate:"{buildDate}" \
+            --define:hostRedis:redis \
+            --define:configPath:/data \
             --define:danger \
-            --define:useOpenssl3 \
-            --dynlibOverride:ssl \
-            --passL:"-lssl -lcrypto" \
-            --define:ssl \
             --opt:speed \
             --out:app \
             src/zoominvitr && \
@@ -92,23 +105,10 @@ task docker_build_debug, "Build Debug Docker.":
             --define:appDate:"{buildDate}" \
             --define:debug:true \
             --define:dryRunMail:true \
+            --define:hostRedis:redis \
+            --define:configPath:/data \
             --debuginfo:on \
-            --define:useOpenssl3 \
-            --dynlibOverride:ssl \
-            --passL:"-lssl -lcrypto" \
-            --define:ssl \
             --out:app \
-            src/zoominvitr
-       """
-task dbuild, "Debug Build project.":
-  exec &"""nim c \
-            --define:appVersion:"{buildVersion}" \
-            --define:appRevision:"{buildRevision}" \
-            --define:appDate:"{buildDate}" \
-            --define:debug:true \
-            --define:dryRunMail:true \
-            --debuginfo:on \
-            --out:zoominvitr_debug \
             src/zoominvitr
        """
 task makecfg, "Create nim.cfg for optimized builds.":
