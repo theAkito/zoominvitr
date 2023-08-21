@@ -61,6 +61,7 @@ when isMainModule:
 
   if not initConf():
     logger.log(lvlFatal, """Failed to initialise configuration file!""")
+    logger.log(lvlFatal, """Reason: """ & getCurrentExceptionMsg())
     quit 1
 
   if not validateConf():

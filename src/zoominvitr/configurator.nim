@@ -124,6 +124,9 @@ proc genDefaultConfig(path = configPath, name = configNameYAML): string =
     pathFull = path.genPathFull(name)
     fStream = pathFull.newFileStream fmWrite
   defer: fStream.close
+  if fStream == nil:
+    logger.log(lvlFatal, pathFull)
+    raise NilAccessDefect.newException "Trying to generate default configuration not possible, because destination is nil!"
   config.dump(
     fStream,
     tagStyle = tsNone,
