@@ -16,3 +16,16 @@ Needless to say, such products are made by companies which don't give a damn abo
 I do not want to help grow such businesses in any way beyond what I need to do for business I shall not avoid.
 
 The reason I created this project is the grade of necessity. I would prefer to not use a product from a company like the one standing behind Zoom, at all.
+
+## Why not release it with Nim 2.0.0?
+
+Nim 2.0.0 currently has a bug.
+
+```
+/root/.nimble/pkgs2/ready-0.1.4-876e2ab213a5ef4a48f054a37cd420d1a1d2fa6c/ready/connections.nim(55, 15) template/generic instantiation of `join` from here
+38.77 /nim/lib/pure/strutils.nim(1855, 6) Error: 'join' can have side effects
+38.77 > /nim/lib/pure/strutils.nim(1865, 17) Hint: 'join' calls `.sideEffect` '$'
+38.77 >> /root/.nimble/pkgs2/ready-0.1.4-876e2ab213a5ef4a48f054a37cd420d1a1d2fa6c/ready/connections.nim(46, 6) Hint: '$' called by 'join'
+```
+
+Fixed in the newest nightly version, so we are just waiting for it to be officially released & made public through a corresponding Docker image.
