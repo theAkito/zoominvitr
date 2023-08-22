@@ -15,6 +15,7 @@ backend       = "c"
 # Dependencies
 
 requires "nim             >= 1.6.14"
+requires "smtp#8013aa199dedd04905d46acf3484a232378de518" ## https://github.com/nim-lang/smtp/issues/9
 requires "schedules       >= 0.2.0"
 requires "puppy           >= 1.0.3"
 requires "ready           >= 0.1.4" # https://github.com/guzba/ready
@@ -22,12 +23,6 @@ requires "timestamp       >= 0.4.2"
 requires "timezones       >= 0.5.4"
 requires "zero_functional >= 1.3.0"
 requires "yaml#189844a72b90ba7ade864f997280809efcb21d0a"
-
-import distros
-if Alpine.detectOs:
-  requires "smtp"
-else:
-  requires "smtp#8013aa199dedd04905d46acf3484a232378de518" ## https://github.com/nim-lang/smtp/issues/9
 
 
 # Tasks
