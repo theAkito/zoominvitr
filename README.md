@@ -43,7 +43,7 @@ Testing API.
 * ~~Make SSL/TLS work on Alpine inside Docker~~
 * ~~Optimise Docker Compose YAML files~~
 * ~~Improve Error Handling on Database Connection Defect~~
-* Cache Zoom responses for 1, 12 or 24 hours
+* ~~Cache Zoom responses for 1, 12 or 24 hours~~
 * Save Contexts in Database
 * Minimise Zoom API call amount
 
