@@ -21,8 +21,8 @@ proc fillPlaceholders(tpl: string, meeting: ZoomMeeting, dateFormat, timeFormat,
     ("{zoom.START_TIME}", meeting.startTime.formatWithTimezone(timeFormat, timeZone))
   )
 
-proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting) =
-  let mail = newSmtp(useSsl = true, debug = meta.debugMail)
+proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting, debugEchoMail = meta.debugMail) =
+  let mail = newSmtp(useSsl = true, debug = debugEchoMail)
   defer: mail.close
   mail.connect(ctx.mail.mailSender.serverSMTP, ctx.mail.mailSender.portSMTP.Port)
   if ctx.mail.mailSender.startTLS: mail.startTls()
@@ -38,8 +38,8 @@ proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting) =
       )
     )
 
-proc sendMailDryRun*(ctx: ConfigContext, meeting: ZoomMeeting) =
-  let mail = newSmtp(useSsl = true, debug = meta.debugMail)
+proc sendMailDryRun*(ctx: ConfigContext, meeting: ZoomMeeting, debugEchoMail = meta.debugMail) =
+  let mail = newSmtp(useSsl = true, debug = debugEchoMail)
   defer: mail.close
   mail.connect(ctx.mail.mailSender.serverSMTP, ctx.mail.mailSender.portSMTP.Port)
   if ctx.mail.mailSender.startTLS: mail.startTls()
