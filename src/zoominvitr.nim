@@ -69,6 +69,8 @@ when isMainModule:
     logger.log(lvlFatal, """Configuration file may not have the same `patternKeywordsYes` or `patternKeywordsNo` in multiple contexts!""")
     quit 1
 
+  initDb(config.getSettings.hostRedis.get(hostRedis), config.getSettings.portRedis.get(portRedis))
+
   while true:
     for ctx in config.contexts:
       if meta.debugResetNotify or config.getSettingsDebug.resetNotify.get(false): ctx.zoom.deleteNotified
