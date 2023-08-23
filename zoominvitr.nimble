@@ -2,7 +2,7 @@
 
 version       = "0.1.0"
 author        = "Akito <the@akito.ooo>"
-description   = "Automatically send invitations to planned Zoom meetings."
+description   = "Automatically send invitations about planned Zoom meetings."
 license       = "GPL-3.0-or-later"
 srcDir        = "src"
 bin           = @["zoominvitr"]
