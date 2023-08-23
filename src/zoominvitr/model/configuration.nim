@@ -66,7 +66,7 @@ type
     debug*: Option[ConfigDebug]
     zoomApiPullInterval*: Option[ConfigPushSchedule]
     hostRedis*: Option[string]
-    portRedis*: Option[string]
+    portRedis*: Option[int]
   ConfigMaster* {.sparse.} = object
     version*: string
     settings*: Option[ConfigSettings]

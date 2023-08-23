@@ -31,7 +31,10 @@ import
 export DatabaseNotified
 export timestamp
 
-let
+var
+  redis:RedisConn
+
+proc initDb*(hostRedis = hostRedis, portRedis = portRedis) =
   redis = block:
     let socket = newSocket()
     try:
