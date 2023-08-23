@@ -2,7 +2,8 @@ import
   ../meta,
   configuration,
   std/[
-    logging
+    logging,
+    options
   ],
   pkg/[
     timestamp
@@ -15,6 +16,10 @@ type
   DatabaseNotified* = object
     keywordSignature*: string ## Hash-like thing of `patternKeywordsYes` & `patternKeywordsNo`.
     timestamp*: string        ## Timestamp Library
+  DatabaseZoomResponse* = object
+    zoomUserID*: string       ## `ctx.zoom.authentication.userID`
+    timestamp*: string        ## Timestamp Library
+    meetings*: string         ## Original Zoom Response Body, as if we just got it from the Zoom API.
 
 proc createDatabaseNotified*(patternKeywordsYes, patternKeywordsNo: seq[ConfigZoomPatternKeyword]): DatabaseNotified =
   DatabaseNotified(
@@ -28,14 +33,34 @@ proc createDatabaseNotified*(config: ConfigZoom): DatabaseNotified =
     timestamp: initTimestamp().zulu
   )
 
+proc createDatabaseZoomResponse*(auth: ConfigZoomAuthentication, meetingsBody: Option[string] = string.none): DatabaseZoomResponse =
+  DatabaseZoomResponse(
+    zoomUserID: auth.userID,
+    timestamp: initTimestamp().zulu,
+    meetings: meetingsBody.get(string.default)
+  )
+
 proc deserialiseDatabaseNotified*(fields: seq[string]): DatabaseNotified =
   DatabaseNotified(
     timestamp: fields[fields.find("timestamp").succ]
+  )
+
+proc deserialiseDatabaseZoomResponse*(fields: seq[string]): DatabaseZoomResponse =
+  DatabaseZoomResponse(
+    timestamp: fields[fields.find("timestamp").succ],
+    meetings: fields[fields.find("meetings").succ]
   )
 
 proc deserialiseDatabaseNotifiedTimestamp*(fields: seq[string]): Timestamp =
   try:
     fields[fields.find("timestamp").succ].parseZulu
   except:
-    logger.log(lvlError, "[model/database.deserialiseDatabaseNotifiedTimestamp] Unable to deserialise this Redis Query result:\p" & fields[fields.find("timestamp").succ])
+    logger.log(lvlError, "[model/database.deserialiseDatabaseZoomResponseTimestamp] Unable to deserialise this Redis Query result:\p" & fields[fields.find("timestamp").succ])
+    raise getCurrentException()
+
+proc deserialiseDatabaseZoomResponseTimestamp*(fields: seq[string]): Timestamp =
+  try:
+    fields[fields.find("timestamp").succ].parseZulu
+  except:
+    logger.log(lvlError, "[model/database.deserialiseDatabaseZoomResponseTimestamp] Unable to deserialise this Redis Query result:\p" & fields[fields.find("timestamp").succ])
     raise getCurrentException()
