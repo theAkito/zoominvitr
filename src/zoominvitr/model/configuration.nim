@@ -1,3 +1,7 @@
+import options, pkg/yaml
+
+## {.sparse.} --> https://nimyaml.org/api/annotations.html#sparse.t
+
 type
   ConfigZoomFilterStatement* = enum
     OR, AND
@@ -53,6 +57,24 @@ type
     timeZone*: string
     zoom*: ConfigZoom
     mail*: ConfigPushMail
-  ConfigMaster* = object
+  ConfigDebug* {.sparse.} = object
+    echoMail*: Option[bool]
+    resetNotify*: Option[bool]
+    trace*: Option[bool]
+    dryRunMail*: Option[bool]
+  ConfigSettings* {.sparse.} = object
+    debug*: Option[ConfigDebug]
+    zoomApiPullInterval*: Option[ConfigPushSchedule]
+    hostRedis*: Option[string]
+    portRedis*: Option[string]
+  ConfigMaster* {.sparse.} = object
     version*: string
+    settings*: Option[ConfigSettings]
     contexts*: seq[ConfigContext]
+
+
+proc getSettings*(config: ConfigMaster): ConfigSettings =
+  config.settings.get(ConfigSettings())
+
+proc getSettingsDebug*(config: ConfigMaster): ConfigDebug =
+  config.getSettings.debug.get(ConfigDebug())
