@@ -26,7 +26,8 @@ import
     times,
     strformat,
     logging,
-    sugar
+    sugar,
+    options
   ],
   pkg/[
     puppy,
@@ -70,7 +71,7 @@ when isMainModule:
 
   while true:
     for ctx in config.contexts:
-      when meta.debugResetNotify: ctx.zoom.deleteNotified
+      if meta.debugResetNotify or config.getSettingsDebug.resetNotify.get(false): ctx.zoom.deleteNotified
       let
         notifiedLast = block:
           ctx.zoom.initNotifiedIfNotExists
@@ -81,13 +82,21 @@ when isMainModule:
               respondedLast = block:
                 auth.initZoomResponseIfNotExists
                 auth.loadZoomResponseTimestamp.toDateTime
-              dateOfHoursBeforeNow = respondedLast - initDuration(hours = 24 #[ TODO: Make configurable! ]#)
+              timeAmount = config.getSettings.zoomApiPullInterval.get(ConfigPushSchedule(amount: 24)).amount
+              duration = case config.getSettings.zoomApiPullInterval.get(ConfigPushSchedule(tType: ConfigPushScheduleTimeType.DAYS)).tType:
+                of ConfigPushScheduleTimeType.DAYS:
+                  initDuration(days = timeAmount)
+                of ConfigPushScheduleTimeType.HOURS:
+                  initDuration(hours = timeAmount)
+                of ConfigPushScheduleTimeType.MINUTES:
+                  initDuration(minutes = timeAmount)
+              dateOfHoursBeforeNow = respondedLast - duration
               databaseZoomResponseMeetings = auth.loadZoomResponse.meetings
               jMeetingsBody = if dateOfHoursBeforeNow < respondedLast and databaseZoomResponseMeetings != string.default:
-                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response happened at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
                 databaseZoomResponseMeetings.parseJson
               else:
-                logger.log(lvlInfo, &"""Loading Zoom response for ""E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response happened at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for ""E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
                 let
                   userMail = auth.mail
                   mailToID = {
@@ -157,12 +166,12 @@ when isMainModule:
         schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
           if x.tType.ord < y.tType.ord: -1 else: 1
 
-      when meta.debugTrace:
+      if meta.debugTrace or config.getSettingsDebug.trace.get(false):
         logger.log lvlDebug, "===================meetingsMatchedYes==================="
         logger.log lvlDebug, pretty %meetingsMatchedYes
 
       if ctx.mail.enable:
-        proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = dryRunMail) =
+        proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = (dryRunMail or config.getSettingsDebug.dryRunMail.get(false))) =
           let
             timeTypeStr = $timeType
             tplStrBefore = &"{timeAmount} {timeTypeStr} before the meeting"
@@ -179,8 +188,9 @@ when isMainModule:
               logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" was already notified about!""")
               return
             else:
-              if dryRun: ctx.sendMailDryRun(nextMeeting)
-              else: ctx.sendMail(nextMeeting)
+              let debugEchoMail = config.getSettingsDebug.echoMail.get(false)
+              if dryRun: ctx.sendMailDryRun(nextMeeting, debugEchoMail)
+              else: ctx.sendMail(nextMeeting, debugEchoMail)
               ctx.zoom.saveNotified
           else:
             logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")

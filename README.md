@@ -44,8 +44,9 @@ Testing API.
 * ~~Optimise Docker Compose YAML files~~
 * ~~Improve Error Handling on Database Connection Defect~~
 * ~~Cache Zoom responses for 1, 12 or 24 hours~~
-* Save Contexts in Database
-* Minimise Zoom API call amount
+* ~~Minimise Zoom API call amount~~
+* ~~Save Contexts in Database~~
+* ~~Make Meta Options configurable via Configuration File~~
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
