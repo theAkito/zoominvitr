@@ -78,47 +78,67 @@ when isMainModule:
         preMeetingsMatchedYes = collect:
           for auth in ctx.zoom.authentication:
             let
-              userMail = auth.mail
-              mailToID = {
-                userMail: auth.userID
-              }.toTable
-              account_id = auth.accountID
-              client_id = auth.clientID
-              client_secret = auth.clientSecret
-              base_bearer_token = encode(&"""{client_id}:{client_secret}""")
-              bearer_token = "Basic " & base_bearer_token
-              access_token = post(
-                &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
-                @[
-                  (headerKey_authorization, bearer_token),
-                  (headerKey_contentType, headerVal_contentType),
-                  (headerKey_host, headerVal_host)
-                ].HttpHeaders
-              ).body.parseJson{"access_token"}.getStr
-              bearer_access_token = &"Bearer {access_token}"
-              urlZoomMeetings = parseUrl(&"{root_url}users/{mailToID[userMail]}/meetings").edit:
-                it.query = @[
-                  (key: "type", value: "upcoming_meetings"),
-                  (key: "page_size", value: "100")
-                ].QueryParams
-              meetingsBody = Request(
-                url: urlZoomMeetings,
-                headers: @[
-                  (headerKey_authorization, bearer_access_token),
-                  (headerKey_contentType, headerVal_contentType),
-                  (headerKey_host, headerVal_host)
-                ].HttpHeaders,
-                verb: "GET"
-              ).fetch().body
-              meetings = block:
-                let jMeetingsBody = meetingsBody.parseJson
+              respondedLast = block:
+                auth.initZoomResponseIfNotExists
+                auth.loadZoomResponseTimestamp.toDateTime
+              dateOfHoursBeforeNow = respondedLast - initDuration(hours = 24 #[ TODO: Make configurable! ]#)
+              databaseZoomResponseMeetings = auth.loadZoomResponse.meetings
+              jMeetingsBody = if dateOfHoursBeforeNow < respondedLast and databaseZoomResponseMeetings != string.default:
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response happened at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                databaseZoomResponseMeetings.parseJson
+              else:
+                logger.log(lvlInfo, &"""Loading Zoom response for ""E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response happened at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                let
+                  userMail = auth.mail
+                  mailToID = {
+                    userMail: auth.userID
+                  }.toTable
+                  account_id = auth.accountID
+                  client_id = auth.clientID
+                  client_secret = auth.clientSecret
+                  base_bearer_token = encode(&"""{client_id}:{client_secret}""")
+                  bearer_token = "Basic " & base_bearer_token
+                  access_token = post(
+                    &"https://{headerVal_host}/oauth/token?grant_type=account_credentials&account_id={account_id}",
+                    @[
+                      (headerKey_authorization, bearer_token),
+                      (headerKey_contentType, headerVal_contentType),
+                      (headerKey_host, headerVal_host)
+                    ].HttpHeaders
+                  ).body.parseJson{"access_token"}.getStr
+                  bearer_access_token = &"Bearer {access_token}"
+                  urlZoomMeetings = parseUrl(&"{root_url}users/{mailToID[userMail]}/meetings").edit:
+                    it.query = @[
+                      (key: "type", value: "upcoming_meetings"),
+                      (key: "page_size", value: "100")
+                    ].QueryParams
+                  meetingsBody = Request(
+                    url: urlZoomMeetings,
+                    headers: @[
+                      (headerKey_authorization, bearer_access_token),
+                      (headerKey_contentType, headerVal_contentType),
+                      (headerKey_host, headerVal_host)
+                    ].HttpHeaders,
+                    verb: "GET"
+                  ).fetch().body
+                  jMeetingsBody = try:
+                      meetingsBody.parseJson
+                    except CatchableError:
+                      logger.log(lvlError, "Failed to parse the following body:\p" & meetingsBody)
+                      logger.log(lvlError, getCurrentException().getStackTrace)
+                      logger.log(lvlError, getCurrentExceptionMsg())
+                      continue
                 if jMeetingsBody{"code"}.getInt(0) == 124:
                   logger.log(lvlError, """Authentication to Zoom API failed! Check your configuration file! Did you configure this server via its configuration file, yet?""")
                   continue
+                else:
+                  auth.saveZoomResponse(meetingsBody)
+                jMeetingsBody
+              meetings = block:
                 try:
                   jMeetingsBody.toZoomMeetings.toSeq
                 except CatchableError:
-                  logger.log(lvlError, "Failed to parse the following body:\p" & meetingsBody)
+                  logger.log(lvlError, "Failed to parse the following body:\p" & pretty jMeetingsBody)
                   logger.log(lvlError, getCurrentException().getStackTrace)
                   logger.log(lvlError, getCurrentExceptionMsg())
                   continue
