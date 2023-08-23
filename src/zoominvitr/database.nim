@@ -72,6 +72,27 @@ proc deleteNotified(n: DatabaseNotified): RedisReply {.discardable.} =
     ("EXEC", @[])
   ].exec
 
+proc saveZoomResponse(r: DatabaseZoomResponse): RedisReply {.discardable.} =
+  ## https://redis.io/commands/multi/
+  ## https://redis.io/commands/hmset/
+  ## https://redis.io/commands/exec/
+  [
+    ("MULTI", @[]),
+    ("HMSET", @[r.zoomUserID, "timestamp", r.timestamp, "meetings", r.meetings]),
+    ("EXEC", @[])
+  ].exec
+
+proc deleteZoomResponse(r: DatabaseZoomResponse): RedisReply {.discardable.} =
+  ## https://redis.io/commands/del/
+  [
+    ("MULTI", @[]),
+    ("DEL", @[r.zoomUserID]),
+    ("EXEC", @[])
+  ].exec
+
+proc loadZoomResponse(r: DatabaseZoomResponse): seq[string] =
+  redis.command("HGETALL", r.zoomUserID).to(seq[string])
+
 proc loadNotified(n: DatabaseNotified): seq[string] =
   redis.command("HGETALL", n.keywordSignature).to(seq[string])
 
@@ -80,6 +101,12 @@ proc saveNotified*(config: ConfigZoom) =
 
 proc deleteNotified*(config: ConfigZoom) =
   config.createDatabaseNotified.deleteNotified
+
+proc saveZoomResponse*(auth: ConfigZoomAuthentication, meetingsBody: string) =
+  auth.createDatabaseZoomResponse(meetingsBody.some).saveZoomResponse
+
+proc deleteZoomResponse*(auth: ConfigZoomAuthentication, meetingsBody: string) =
+  auth.createDatabaseZoomResponse(meetingsBody.some).deleteZoomResponse
 
 proc initNotifiedIfNotExists*(config: ConfigZoom) =
   ## https://redis.io/commands/hset/
@@ -90,11 +117,26 @@ proc initNotifiedIfNotExists*(config: ConfigZoom) =
     n.saveNotified
     [("HSET", @[key, "timestamp", rootTimestampStr])].exec
 
+proc initZoomResponseIfNotExists*(auth: ConfigZoomAuthentication) =
+  ## https://redis.io/commands/hset/
+  let
+    r = auth.createDatabaseZoomResponse
+    key = auth.userID
+  if not key.keyExists:
+    r.saveZoomResponse
+    [("HSET", @[key, "timestamp", rootTimestampStr])].exec
+
 proc loadNotified*(config: ConfigZoom): DatabaseNotified =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotified
 
+proc loadZoomResponse*(auth: ConfigZoomAuthentication): DatabaseZoomResponse =
+  auth.createDatabaseZoomResponse.loadZoomResponse.deserialiseDatabaseZoomResponse
+
 proc loadNotifiedTimestamp*(config: ConfigZoom): Timestamp =
   config.createDatabaseNotified.loadNotified.deserialiseDatabaseNotifiedTimestamp
+
+proc loadZoomResponseTimestamp*(auth: ConfigZoomAuthentication): Timestamp =
+  auth.createDatabaseZoomResponse.loadZoomResponse.deserialiseDatabaseZoomResponseTimestamp
 
 
 when isMainModule:
