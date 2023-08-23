@@ -12,3 +12,6 @@ proc formatWithTimezone*(timestamp: Timestamp, format, timeZone: string): string
 
 proc formatWithTimezone*(timestamp: Timestamp, timeZone: string): string =
   $timestamp.toDateTime.inZone(timeZone.tzInfo.timezone)
+
+proc formatWithTimezone*(time: DateTime, timeZone: string): string =
+  $time.inZone(timeZone.tzInfo.timezone)
