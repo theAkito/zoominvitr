@@ -47,6 +47,8 @@ Testing API.
 * ~~Minimise Zoom API call amount~~
 * ~~Save Contexts in Database~~
 * ~~Make Meta Options configurable via Configuration File~~
+* ~~Fix ambiguous Identifier~~
+* Publish via [Nimble](https://nimble.directory/)
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
