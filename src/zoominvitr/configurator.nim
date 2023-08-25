@@ -10,12 +10,13 @@ import
     json,
     os,
     streams,
-    sugar,
-    logging
+    sugar
   ],
   pkg/[
     yaml
   ]
+
+import std/logging except debug ## https://github.com/flyx/NimYAML/issues/136#issuecomment-1693576125
 
 let logger = getLogger("configurator")
 
