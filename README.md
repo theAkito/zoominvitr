@@ -17,6 +17,14 @@ No need for manual invitations.
 ## How
 First, check out [how to get access to Zoom's API](HOW-TO-ZOOM-API.md).
 
+Second, prepare system for Redis.
+
+```
+option="vm.overcommit_memory=1"
+sudo sysctl -w "{option}"
+sudo echo "{option}" >> /etc/sysctl.conf
+```
+
 Run the `docker-compose.yml`, after adjusting its values & setting up your personalised Zoom Meetings configuration.
 
 ## Where
@@ -26,8 +34,7 @@ Linux via Docker
 * Reliability
 
 ## Project Status
-Beta.
-Testing API.
+Production
 
 ## TODO
 * ~~Support E-Mail~~
@@ -48,6 +55,7 @@ Testing API.
 * ~~Save Contexts in Database~~
 * ~~Make Meta Options configurable via Configuration File~~
 * ~~Fix ambiguous Identifier~~
+* Publish Configuration File Documentation
 * Publish via [Nimble](https://nimble.directory/)
 
 ## License

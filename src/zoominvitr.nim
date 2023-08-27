@@ -98,7 +98,7 @@ when isMainModule:
                 logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
                 databaseZoomResponseMeetings.parseJson
               else:
-                logger.log(lvlInfo, &"""Loading Zoom response for ""E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
                 let
                   userMail = auth.mail
                   mailToID = {
@@ -172,32 +172,39 @@ when isMainModule:
         logger.log lvlDebug, "===================meetingsMatchedYes==================="
         logger.log lvlDebug, pretty %meetingsMatchedYes
 
+      proc getTimeUnitsBefore(timeType: ConfigPushScheduleTimeType, timeAmount: int): DateTime =
+        let duration = case timeType:
+          of ConfigPushScheduleTimeType.DAYS:
+            initDuration(days = timeAmount)
+          of ConfigPushScheduleTimeType.HOURS:
+            initDuration(hours = timeAmount)
+          of ConfigPushScheduleTimeType.MINUTES:
+            initDuration(minutes = timeAmount)
+        nextMeetingStartTime - duration
+
+      proc process(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, notificationType: string, task: proc()) =
+        let
+          timeTypeStr = $timeType
+          tplStrBefore = &"{timeAmount} {timeTypeStr} before the meeting"
+          timeUnitsBefore = getTimeUnitsBefore(timeType, timeAmount)
+        if timeUnitsBefore < now():
+          if timeUnitsBefore < notifiedLast.toDateTime:
+            logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" was already notified about!""")
+            return
+          else:
+            task()
+        else:
+          logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")
+
       if ctx.mail.enable:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = (dryRunMail or config.getSettingsDebug.dryRunMail.get(false))) =
-          let
-            timeTypeStr = $timeType
-            tplStrBefore = &"{timeAmount} {timeTypeStr} before the meeting"
-            duration = case timeType:
-              of ConfigPushScheduleTimeType.DAYS:
-                initDuration(days = timeAmount)
-              of ConfigPushScheduleTimeType.HOURS:
-                initDuration(hours = timeAmount)
-              of ConfigPushScheduleTimeType.MINUTES:
-                initDuration(minutes = timeAmount)
-            timeUnitsBefore = nextMeetingStartTime - duration
-          if timeUnitsBefore < now():
-            if timeUnitsBefore < notifiedLast.toDateTime:
-              logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" was already notified about!""")
-              return
-            else:
-              let debugEchoMail = config.getSettingsDebug.echoMail.get(false)
-              if dryRun: ctx.sendMailDryRun(nextMeeting, debugEchoMail)
-              else: ctx.sendMail(nextMeeting, debugEchoMail)
-              ctx.zoom.saveNotified
-          else:
-            logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")
-
+          let debugEchoMail = config.getSettingsDebug.echoMail.get(false)
+          process(topic, timeType, timeAmount, "E-Mail") do:
+            if dryRun: ctx.sendMailDryRun(nextMeeting, debugEchoMail)
+            else: ctx.sendMail(nextMeeting, debugEchoMail)
+            ctx.zoom.saveNotified
         for sched in schedulesSorted:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
+
       sleep 10000
     sleep 60_000
