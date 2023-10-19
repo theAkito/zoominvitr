@@ -55,7 +55,9 @@ Production
 * ~~Save Contexts in Database~~
 * ~~Make Meta Options configurable via Configuration File~~
 * ~~Fix ambiguous Identifier~~
+* ~~Fix API Response Caching~~
 * Publish Configuration File Documentation
+* Implement appVersion
 * Publish via [Nimble](https://nimble.directory/)
 
 ## License
