@@ -25,7 +25,19 @@ sudo sysctl -w "{option}"
 sudo echo "{option}" >> /etc/sysctl.conf
 ```
 
-Run the `docker-compose.yml`, after adjusting its values & setting up your personalised Zoom Meetings configuration.
+Thirdly, run the `docker-compose.yml`, after adjusting its values & setting up your personalised Zoom Meetings configuration.
+Make sure to set the `user` directive according to your needs.
+For example, if your OS user is of the name `zoominvitr` & is of the UID `1001`, then adjust this in the `docker-compose.yml` file.
+
+Now, create the storage tree.
+
+```
+id zoominvitr # uid=1001(zoominvitr) gid=1001(zoominvitr) groups=1001(zoominvitr)
+su - zoominvitr
+mkdir -p ./zoominvitr/database
+mkdir -p ./zoominvitr/app
+mkdir -p ./zoominvitr/logs
+```
 
 ## Where
 Linux via Docker
@@ -56,8 +68,8 @@ Production
 * ~~Make Meta Options configurable via Configuration File~~
 * ~~Fix ambiguous Identifier~~
 * ~~Fix API Response Caching~~
+* ~~Implement appVersion~~
 * Publish Configuration File Documentation
-* Implement appVersion
 * Publish via [Nimble](https://nimble.directory/)
 
 ## License

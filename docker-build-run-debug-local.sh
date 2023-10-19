@@ -17,7 +17,7 @@
 #########################################################################
 
 
-docker build -t local/akito13/zoominvitr:local . && \
-docker compose down && \
-docker compose up --remove-orphans -d && \
+docker build -t local/akito13/zoominvitr:local -f debug.Dockerfile . && \
+docker compose -f docker-compose.local.yml down && \
+docker compose -f docker-compose.local.yml up --remove-orphans -d && \
 docker logs -f zoominvitr
