@@ -12,7 +12,8 @@ import
   ],
   zoominvitr/model/[
     zoom,
-    configuration
+    configuration,
+    settings
   ],
   std/[
     algorithm,
@@ -54,8 +55,11 @@ func matchKeywords(topic: string, keywords: seq[ConfigZoomPatternKeyword]): bool
 
 
 when isMainModule:
+  let
+    moduleName = "zoominvitr"
+    logger = getLogger(moduleName)
+    loggerFile = getFileLogger(moduleName)
 
-  let logger = getLogger("zoominvitr")
   logger.log(lvlNotice, "appVersion: " & appVersion)
   logger.log(lvlNotice, "appRevision: " & appRevision)
   logger.log(lvlNotice, "appDate: " & appDate)
@@ -71,6 +75,26 @@ when isMainModule:
 
   initDb(config.getSettings.hostRedis.get(hostRedis), config.getSettings.portRedis.get(portRedis))
 
+  proc logFile(msg: string) =
+    when NimMajor >= 2:
+      loggerFile.log(
+        lvlInfo,
+        args = createLogMessage(
+          level = lvlInfo,
+          msg = msg,
+          module = moduleName
+        )
+      )
+    else:
+      loggerFile.log(
+        lvlError, # https://github.com/nim-lang/Nim/pull/20817
+        createLogMessage(
+          level = lvlInfo,
+          msg = msg,
+          module = moduleName
+        )
+      )
+
   while true:
     for ctx in config.contexts:
       if meta.debugResetNotify or config.getSettingsDebug.resetNotify.get(false): ctx.zoom.deleteNotified
@@ -85,20 +109,20 @@ when isMainModule:
                 auth.initZoomResponseIfNotExists
                 auth.loadZoomResponseTimestamp.toDateTime
               timeAmount = config.getSettings.zoomApiPullInterval.get(ConfigPushSchedule(amount: 24)).amount
-              duration = case config.getSettings.zoomApiPullInterval.get(ConfigPushSchedule(tType: ConfigPushScheduleTimeType.DAYS)).tType:
+              duration = case config.getSettings.zoomApiPullInterval.get(ConfigPushSchedule(tType: ConfigPushScheduleTimeType.HOURS)).tType:
                 of ConfigPushScheduleTimeType.DAYS:
                   initDuration(days = timeAmount)
                 of ConfigPushScheduleTimeType.HOURS:
                   initDuration(hours = timeAmount)
                 of ConfigPushScheduleTimeType.MINUTES:
                   initDuration(minutes = timeAmount)
-              dateOfHoursBeforeNow = respondedLast - duration
+              dateOfHoursBeforeNow = initTimestamp().toDateTime - duration
               databaseZoomResponseMeetings = auth.loadZoomResponse.meetings
               jMeetingsBody = if dateOfHoursBeforeNow < respondedLast and databaseZoomResponseMeetings != string.default:
-                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.toTimestamp.formatWithTimezone("yyyy-MM-dd HH:mm zzz", ctx.timeZone)}"!""")
                 databaseZoomResponseMeetings.parseJson
               else:
-                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.formatWithTimezone(ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.toTimestamp.formatWithTimezone("yyyy-MM-dd HH:mm zzz", ctx.timeZone)}"!""")
                 let
                   userMail = auth.mail
                   mailToID = {
@@ -199,12 +223,14 @@ when isMainModule:
       if ctx.mail.enable:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = (dryRunMail or config.getSettingsDebug.dryRunMail.get(false))) =
           let debugEchoMail = config.getSettingsDebug.echoMail.get(false)
-          process(topic, timeType, timeAmount, "E-Mail") do:
+          process(topic, timeType, timeAmount, "E-Mail") do ():
             if dryRun: ctx.sendMailDryRun(nextMeeting, debugEchoMail)
             else: ctx.sendMail(nextMeeting, debugEchoMail)
             ctx.zoom.saveNotified
+            if config.getSettings.log.get(true):
+              logFile &"""Sent mail regarding "{topic}"."""
         for sched in schedulesSorted:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
 
-      sleep 10000
+      sleep 10_000
     sleep 60_000
