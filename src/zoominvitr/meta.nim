@@ -1,5 +1,11 @@
-from logging import Level, ConsoleLogger, newConsoleLogger
+from logging import Level, ConsoleLogger, newConsoleLogger, RollingFileLogger, newRollingFileLogger
 from timestamp import initTimestamp, `$`
+
+when NimMajor >= 2:
+  from std/os import DirSep
+  from std/paths import `/`, Path
+else:
+  from std/os import DirSep, `/`
 
 const
   debug             * {.booldefine.} = false
@@ -14,7 +20,7 @@ const
   logMsgSuffix      * {.strdefine.}  = " -> "
   hostRedis         * {.strdefine.}  = "redis"
   portRedis         * {.intdefine.}  = 6379
-  appVersion        * {.strdefine.}  = "0.1.0"
+  appVersion        * {.strdefine.}  = "0.2.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
   configNameJSON    * {.strdefine.}  = "zoominvitr.json"
@@ -39,3 +45,9 @@ func defineLogLevel*(): Level =
 
 proc getLogger*(moduleName: string): ConsoleLogger =
   newConsoleLogger(defineLogLevel(), logMsgPrefix & logMsgInter & moduleName & logMsgSuffix)
+
+proc getFileLogger*(moduleName: string): RollingFileLogger =
+  when NimMajor >= 2:
+    newRollingFileLogger(DirSep & cast[string](DirSep & string("logs".Path / moduleName.Path)) & ".log", mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000, flushThreshold = lvlAll)
+  else:
+    newRollingFileLogger(DirSep & "logs" / moduleName & ".log", mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000)
