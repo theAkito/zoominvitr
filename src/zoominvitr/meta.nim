@@ -4,8 +4,9 @@ from timestamp import initTimestamp, `$`
 when NimMajor >= 2:
   from std/os import DirSep
   from std/paths import `/`, Path
+  from std/files import fileExists
 else:
-  from std/os import DirSep, `/`
+  from std/os import DirSep, `/`, existsFile
 
 const
   debug             * {.booldefine.} = false
@@ -20,7 +21,7 @@ const
   logMsgSuffix      * {.strdefine.}  = " -> "
   hostRedis         * {.strdefine.}  = "redis"
   portRedis         * {.intdefine.}  = 6379
-  appVersion        * {.strdefine.}  = "0.2.0"
+  appVersion        * {.strdefine.}  = "0.2.1"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
   configNameJSON    * {.strdefine.}  = "zoominvitr.json"
@@ -48,6 +49,10 @@ proc getLogger*(moduleName: string): ConsoleLogger =
 
 proc getFileLogger*(moduleName: string): RollingFileLogger =
   when NimMajor >= 2:
-    newRollingFileLogger(DirSep & cast[string](DirSep & string("logs".Path / moduleName.Path)) & ".log", mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000, flushThreshold = lvlAll)
+    let filename = DirSep & cast[string](DirSep & string("logs".Path / moduleName.Path)) & ".log"
+    if not filename.Path.fileExists: filename.writeFile("")
+    newRollingFileLogger(filename, mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000, flushThreshold = lvlAll)
   else:
-    newRollingFileLogger(DirSep & "logs" / moduleName & ".log", mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000)
+    let filename = DirSep & "logs" / moduleName & ".log"
+    if not filename.existsFile: filename.writeFile("")
+    newRollingFileLogger(filename, mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000)
