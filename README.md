@@ -69,8 +69,8 @@ Production
 * ~~Fix ambiguous Identifier~~
 * ~~Fix API Response Caching~~
 * ~~Implement appVersion~~
+* ~~Publish via [Nimble](https://nimble.directory/)~~
 * Publish Configuration File Documentation
-* Publish via [Nimble](https://nimble.directory/)
 
 ## License
 Copyright © 2023  Akito <the@akito.ooo>
