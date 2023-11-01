@@ -1,12 +1,11 @@
 # Package
 
-version       = "0.2.1"
+version       = "0.2.2"
 author        = "Akito <the@akito.ooo>"
 description   = "Automatically send invitations about planned Zoom meetings."
-license       = "GPL-3.0-or-later"
+license       = "AGPL-3.0-or-later"
 srcDir        = "src"
 bin           = @["zoominvitr"]
-skipDirs      = @["helpers"]
 skipFiles     = @["README.md"]
 skipExt       = @["nim"]
 backend       = "c"
@@ -36,11 +35,6 @@ let
   buildRevision = gorge """git log -1 --format="%H""""                         ## Build revision, i.e. Git Commit Hash
   buildDate     = gorge """date"""                                             ## Build date; Example: Sun 10 Apr 2022 01:13:09 AM CEST
 
-task intro, "Initialize project. Run only once at first pull.":
-  exec "git submodule add https://github.com/theAkito/nim-tools.git helpers || true"
-  exec "git submodule update --init --recursive"
-  exec "git submodule update --recursive --remote"
-  exec "nimble configure"
 task configure, "Configure project. Run whenever you continue contributing to this project.":
   exec "git fetch --all"
   exec "nimble check"
@@ -113,7 +107,3 @@ task docker_build_debug, "Build Debug Docker.":
             --out:app \
             src/zoominvitr
        """
-task makecfg, "Create nim.cfg for optimized builds.":
-  exec "nim tasks/cfg_optimized.nims"
-task clean, "Removes nim.cfg.":
-  exec "nim tasks/cfg_clean.nims"
