@@ -34,7 +34,7 @@ proc sendMail*(ctx: ConfigContext, meeting: ZoomMeeting, debugEchoMail = meta.de
         ctx.mail.mailReceiver.bodyTpl.fillPlaceholders(meeting, ctx.dateFormat, ctx.timeFormat, ctx.timeZone),
         @[recv],
         @[],
-        [("FROM", """***REMOVED***""")]
+        [("FROM", ctx.mail.mailReceiver.headerFrom)]
       )
     )
 

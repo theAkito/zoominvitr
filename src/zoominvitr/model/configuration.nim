@@ -26,6 +26,7 @@ type
     startTLS*: bool     ## Whether to use STARTTLS.
   ConfigMailReceiver* = object
     mails*: seq[string] ## E-Mail Addresses associated with this object's Meeting topic.
+    headerFrom*: string ## FROM header. Must be properly formatted! https://stackoverflow.com/a/6281547
     subjectTpl*: string ## E-Mail Subject with placeholders.
     bodyTpl*: string    ## E-Mail body with placeholders.\
                         ## {zoom.URL} will be replaced with the Zoom URL.\
