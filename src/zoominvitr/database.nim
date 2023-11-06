@@ -159,8 +159,8 @@ when isMainModule:
 
   echo redis.command("LRANGE", "test1", "0", "-1")
 
-  let cfg = ConfigZoom(patternKeywordsYes: @[ConfigZoomPatternKeyword(keywords: @["yes"])], patternKeywordsNo: @[ConfigZoomPatternKeyword(keywords: @["no"])])
+  let cfg = ConfigZoom(patternKeywordsYes: @[ConfigZoomPatternKeyword(keywords: @["yes"])].some, patternKeywordsNo: @[ConfigZoomPatternKeyword(keywords: @["no"])].some)
 
   saveNotified(cfg)
 
-  echo redis.command("HGETALL", createDatabaseNotified(cfg.patternKeywordsYes, cfg.patternKeywordsNo).keywordSignature).to(seq[string])
+  echo redis.command("HGETALL", cfg.createDatabaseNotified.keywordSignature).to(seq[string])
