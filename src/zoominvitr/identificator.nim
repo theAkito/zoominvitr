@@ -1,10 +1,10 @@
-import std/options
-from std/sugar import collect
 from model/configuration import ConfigMaster, ConfigZoomPatternKeyword
+from std/options import Option, get, isSome
 from std/strutils import join, toLowerAscii
-from std/hashes import hash
 from std/sequtils import mapIt, concat, map
+from std/hashes import hash
 from std/algorithm import sorted
+from std/sugar import collect
 
 type NoKeywordsFoundDefect* = object of Defect
 
