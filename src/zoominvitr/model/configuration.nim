@@ -47,10 +47,10 @@ type
                            ## substring in the Meeting topics,\
                            ## to able to associate the E-Mail addresses\
                            ## from this object to the Meetings matching these keywords.
-  ConfigZoom* = object
+  ConfigZoom* {.sparse.} = object
     authentication*: seq[ConfigZoomAuthentication]
-    patternKeywordsYes*: seq[ConfigZoomPatternKeyword] ## Gets Meetings, which match what is in here.
-    patternKeywordsNo*: seq[ConfigZoomPatternKeyword]  ## Ignores Meetings, which match what is in here.
+    patternKeywordsYes*: Option[seq[ConfigZoomPatternKeyword]] ## Gets Meetings, which match what is in here.
+    patternKeywordsNo*: Option[seq[ConfigZoomPatternKeyword]]  ## Ignores Meetings, which match what is in here.
   ConfigContext* = object
     dateFormat*: string
     timeFormat*: string
