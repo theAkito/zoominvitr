@@ -1,5 +1,6 @@
 import
   meta,
+  identificator,
   model/[
     configuration
   ],
@@ -10,7 +11,8 @@ import
     json,
     os,
     streams,
-    sugar
+    sugar,
+    options
   ],
   pkg/[
     yaml
@@ -38,7 +40,7 @@ var
                 "Juggernaut"
               ]
             )
-          ],
+          ].some,
           patternKeywordsNo: @[
             ConfigZoomPatternKeyword(
               statement: AND,
@@ -48,7 +50,7 @@ var
                 "Test"
               ]
             )
-          ],
+          ].some,
           authentication: @[
             ConfigZoomAuthentication(
               mail: "mail@example.com",
@@ -128,12 +130,8 @@ proc genDefaultConfig(path = configPath, name = configNameYAML): string =
   if fStream == nil:
     logger.log(lvlFatal, pathFull)
     raise NilAccessDefect.newException "Trying to generate default configuration not possible, because destination is nil!"
-  config.dump(
-    fStream,
-    tagStyle = tsNone,
-    options = defineOptions(outputVersion = ovNone),
-    handles = @[]
-  )
+  var dumper = minimalDumper()
+  dumper.dump(config, fStream)
   ""
 
 proc initConfJSON*(path = configPath, name = configNameJSON): bool =
@@ -156,11 +154,9 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
     configAlreadyExists = pathFull.fileExists
   if configAlreadyExists:
     logger.log(lvlDebug, "Config already exists! Not generating new one.")
-    var conf: ConfigMaster
     let fStream = pathFull.newFileStream fmRead
     defer: fStream.close
-    fStream.load conf
-    config = conf
+    fStream.load config
     return true
   try:
     discard genDefaultConfig(path, name)
@@ -172,8 +168,5 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
   true
 
 proc validateConf*(): bool =
-  let yesesNos = collect:
-    for ctx in config.contexts:
-      (ctx.zoom.patternKeywordsYes, ctx.zoom.patternKeywordsNo)
-  yesesNos.any do (yesNo: (seq[ConfigZoomPatternKeyword], seq[ConfigZoomPatternKeyword])) -> bool:
-    yesesNos.countIt(it[0] == yesNo[0]) == 1 and yesesNos.countIt(it[1] == yesNo[1]) == 1
+  let hashes = genHashes(config)
+  hashes.allIt(hashes.count(it) == 1)
