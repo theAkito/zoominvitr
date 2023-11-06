@@ -1,7 +1,7 @@
-FROM nimlang/nim:1.6.14-alpine AS build
+FROM nimlang/nim:2.0.0-alpine AS build
 
 ARG nimble_task_build=docker_build_debug
-ARG app_version=0.2.2
+ARG app_version=0.3.0
 
 WORKDIR /app
 
