@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.2.2"
+version       = "0.3.0"
 author        = "Akito <the@akito.ooo>"
 description   = "Automatically send invitations about planned Zoom meetings."
 license       = "AGPL-3.0-or-later"
@@ -13,15 +13,15 @@ backend       = "c"
 
 # Dependencies
 
-requires "nim             >= 1.6.14"
-requires "smtp#8013aa199dedd04905d46acf3484a232378de518" ## https://github.com/nim-lang/smtp/issues/9
+requires "nim             >= 2.0.0"
 requires "schedules       >= 0.2.0"
 requires "puppy           >= 1.0.3"
 requires "ready           >= 0.1.4" ## https://github.com/guzba/ready
 requires "timestamp       >= 0.4.2"
 requires "timezones       >= 0.5.4"
 requires "zero_functional >= 1.3.0"
-requires "yaml#189844a72b90ba7ade864f997280809efcb21d0a" ## https://github.com/flyx/NimYAML
+requires "smtp#8013aa199dedd04905d46acf3484a232378de518" ## https://github.com/nim-lang/smtp/issues/9
+requires "yaml#854d33378e2b31ada7e54716439a4d6990460268" ## https://github.com/flyx/NimYAML/issues/101
 
 
 # Tasks

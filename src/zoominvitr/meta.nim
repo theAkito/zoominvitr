@@ -21,7 +21,7 @@ const
   logMsgSuffix      * {.strdefine.}  = " -> "
   hostRedis         * {.strdefine.}  = "redis"
   portRedis         * {.intdefine.}  = 6379
-  appVersion        * {.strdefine.}  = "0.2.2"
+  appVersion        * {.strdefine.}  = "0.3.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
   configNameJSON    * {.strdefine.}  = "zoominvitr.json"
