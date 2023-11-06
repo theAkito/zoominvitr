@@ -35,6 +35,8 @@ import
     zero_functional
   ]
 
+from zoominvitr/identificator import raiseNoKeywordsFoundDefect
+
 const
   root_url = "https://api.zoom.us/v2/"
   headerKey_authorization = "Authorization"
@@ -53,6 +55,12 @@ func matchKeywords(topic: string, keywords: seq[ConfigZoomPatternKeyword]): bool
       elif state == OR:
         return true
 
+proc formatMsgNotifiedLast(t: DateTime|Timestamp, timezone: string): string =
+  when t is DateTime:
+    t.toTimestamp.formatWithTimezone("yyyy-MM-dd HH:mm zzz", timezone)
+  else:
+    t.formatWithTimezone("yyyy-MM-dd HH:mm zzz", timezone)
+
 
 when isMainModule:
   let
@@ -70,7 +78,7 @@ when isMainModule:
     quit 1
 
   if not validateConf():
-    logger.log(lvlFatal, """Configuration file may not have the same `patternKeywordsYes` or `patternKeywordsNo` in multiple contexts!""")
+    logger.log(lvlFatal, """Configuration file may not have exactly the same `patternKeywordsYes` and `patternKeywordsNo` in multiple contexts!""")
     quit 1
 
   initDb(config.getSettings.hostRedis.get(hostRedis), config.getSettings.portRedis.get(portRedis))
@@ -98,10 +106,11 @@ when isMainModule:
   while true:
     for ctx in config.contexts:
       if meta.debugResetNotify or config.getSettingsDebug.resetNotify.get(false): ctx.zoom.deleteNotified
-      let
+      var
         notifiedLast = block:
           ctx.zoom.initNotifiedIfNotExists
           ctx.zoom.loadNotifiedTimestamp
+      let
         preMeetingsMatchedYes = collect:
           for auth in ctx.zoom.authentication:
             let
@@ -119,10 +128,10 @@ when isMainModule:
               dateOfHoursBeforeNow = initTimestamp().toDateTime - duration
               databaseZoomResponseMeetings = auth.loadZoomResponse.meetings
               jMeetingsBody = if dateOfHoursBeforeNow < respondedLast and databaseZoomResponseMeetings != string.default:
-                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.toTimestamp.formatWithTimezone("yyyy-MM-dd HH:mm zzz", ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from database, because last response was received at "{respondedLast.formatMsgNotifiedLast(ctx.timeZone)}"!""")
                 databaseZoomResponseMeetings.parseJson
               else:
-                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.toTimestamp.formatWithTimezone("yyyy-MM-dd HH:mm zzz", ctx.timeZone)}"!""")
+                logger.log(lvlInfo, &"""Loading Zoom response for "E-Mail: {auth.mail}; User ID: {auth.userID}" from Zoom API, because last response was received at "{respondedLast.formatMsgNotifiedLast(ctx.timeZone)}"!""")
                 let
                   userMail = auth.mail
                   mailToID = {
@@ -177,9 +186,21 @@ when isMainModule:
                   logger.log(lvlError, getCurrentException().getStackTrace)
                   logger.log(lvlError, getCurrentExceptionMsg())
                   continue
-            meetings --> partition(
-              it.topic.matchKeywords(ctx.zoom.patternKeywordsYes) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo)
-            ).yes
+              meetingsMatched = if ctx.zoom.patternKeywordsYes.isSome and ctx.zoom.patternKeywordsNo.isSome:
+                  meetings --> filter(
+                    it.topic.matchKeywords(ctx.zoom.patternKeywordsYes.get) and not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo.get)
+                  )
+                elif ctx.zoom.patternKeywordsYes.isSome:
+                  meetings --> filter(
+                    it.topic.matchKeywords(ctx.zoom.patternKeywordsYes.get)
+                  )
+                elif ctx.zoom.patternKeywordsNo.isSome:
+                  meetings --> filter(
+                    not it.topic.matchKeywords(ctx.zoom.patternKeywordsNo.get)
+                  )
+                else:
+                  raiseNoKeywordsFoundDefect()
+            meetingsMatched
         meetingsMatchedYes = preMeetingsMatchedYes --> flatten()
         nextMeeting = if meetingsMatchedYes.len == 0:
             logger.log(lvlDebug, &"""No meetings matched. Skip!""")
@@ -188,7 +209,7 @@ when isMainModule:
             meetingsMatchedYes[meetingsMatchedYes.low]
         nextMeetingStartTimeTimestamp = nextMeeting.startTime
         nextMeetingStartTime = nextMeetingStartTimeTimestamp.toDateTime
-        nextMeetingStartTimeStr = nextMeetingStartTimeTimestamp.formatWithTimezone("""yyyy-MM-dd HH:mm zzz""", ctx.timeZone)
+        nextMeetingStartTimeStr = nextMeetingStartTimeTimestamp.formatMsgNotifiedLast(ctx.timeZone)
         schedulesSorted = ctx.mail.schedule.sorted do (x, y: ConfigPushSchedule) -> int:
           if x.tType.ord < y.tType.ord: -1 else: 1
 
@@ -206,6 +227,14 @@ when isMainModule:
             initDuration(minutes = timeAmount)
         nextMeetingStartTime - duration
 
+      proc updateNotifiedLast = notifiedLast = initTimestamp()
+
+      template processPerSchedule(body: untyped): untyped =
+        ## Exposes `sched` value of type `ConfigPushSchedule`.
+        for sch in schedulesSorted:
+          let sched {.inject.} = sch
+          `body`
+
       proc process(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, notificationType: string, task: proc()) =
         let
           timeTypeStr = $timeType
@@ -213,12 +242,14 @@ when isMainModule:
           timeUnitsBefore = getTimeUnitsBefore(timeType, timeAmount)
         if timeUnitsBefore < now():
           if timeUnitsBefore < notifiedLast.toDateTime:
-            logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" was already notified about!""")
+            logger.log(lvlNotice, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" was already notified about at "{notifiedLast.formatMsgNotifiedLast(ctx.timeZone)}"!""")
             return
           else:
+            logger.log(lvlNotice, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" will now be notified about!""")
             task()
+            updateNotifiedLast()
         else:
-          logger.log(lvlInfo, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")
+          logger.log(lvlNotice, &"""Meeting "{topic}" at "{nextMeetingStartTimeStr}" for the notification of type "{notificationType}" at "{tplStrBefore}" will not be notified about, yet, because the time has not yet arrived!""")
 
       if ctx.mail.enable:
         proc processSendMail(topic: string, timeType: ConfigPushScheduleTimeType, timeAmount: int, dryRun = (dryRunMail or config.getSettingsDebug.dryRunMail.get(false))) =
@@ -229,7 +260,7 @@ when isMainModule:
             ctx.zoom.saveNotified
             if config.getSettings.log.get(true):
               logFile &"""Sent mail regarding "{topic}"."""
-        for sched in schedulesSorted:
+        processPerSchedule:
           processSendMail(nextMeeting.topic, sched.tType, sched.amount)
 
       sleep 10_000
