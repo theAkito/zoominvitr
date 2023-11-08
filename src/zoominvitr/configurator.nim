@@ -20,6 +20,10 @@ import
 
 import std/logging except debug ## https://github.com/flyx/NimYAML/issues/136#issuecomment-1693576125
 
+from unicode import validateUtf8
+
+type KeywordsNotUTF8Defect = object of Defect
+
 let logger = getLogger("configurator")
 
 var
@@ -180,5 +184,7 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
   true
 
 proc validateConf*(): bool =
+  if not config.contexts.allIt((if it.zoom.patternKeywordsYes.isSome: it.zoom.patternKeywordsYes.get.allIt(it.keywords.allIt(it.validateUtf8 == -1)) else: true) and (if it.zoom.patternKeywordsNo.isSome: it.zoom.patternKeywordsNo.get.allIt(it.keywords.allIt(it.validateUtf8 == -1)) else: true)):
+    raise KeywordsNotUTF8Defect.newException """There is at least one word in `patternKeywordsYes` or `patternKeywordsNo`, which is not valid UTF-8 data! Please, only use valid UTF-8 strings."""
   let hashes = genHashes(config)
   hashes.allIt(hashes.count(it) == 1)
