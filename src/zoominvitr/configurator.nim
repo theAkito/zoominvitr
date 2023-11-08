@@ -123,7 +123,7 @@ proc genDefaultConfigJSON(path = configPath, name = configNameJSON): JsonNode =
   pathFull.writeFile(conf.pretty())
   conf
 
-proc genDefaultConfig(path = configPath, name = configNameYAML): string =
+proc genDefaultConfig(path = configPath, name = configNameYAML) =
   let
     pathFull = path.genPathFull(name)
     fStream = pathFull.newFileStream fmWrite
@@ -131,9 +131,20 @@ proc genDefaultConfig(path = configPath, name = configNameYAML): string =
   if fStream == nil:
     logger.log(lvlFatal, pathFull)
     raise NilAccessDefect.newException "Trying to generate default configuration not possible, because destination is nil!"
-  var dumper = minimalDumper()
-  dumper.dump(config, fStream)
-  ""
+  var dumper = Dumper()
+  # https://github.com/flyx/NimYAML/blob/854d33378e2b31ada7e54716439a4d6990460268/yaml/presenter.nim#L69-L80
+  discard dumper.edit: ## https://github.com/flyx/NimYAML/issues/140
+    it.presentation.containers = cBlock
+    it.presentation.outputVersion = ovNone
+    it.presentation.newlines = nlLF
+    it.presentation.indentationStep = 2
+    # it.presentation.condenseFlow = false
+    it.presentation.suppressAttrs = true
+    it.presentation.directivesEnd = deNever
+    it.presentation.quoting = sqUnset
+    it.serialization.tagStyle = tsNone
+    it.serialization.handles = @[]
+    it.dump(config, fStream)
 
 proc initConfJSON*(path = configPath, name = configNameJSON): bool =
   let
@@ -160,7 +171,7 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
     fStream.load config
     return true
   try:
-    discard genDefaultConfig(path, name)
+    genDefaultConfig(path, name)
     logger.log(lvlWarn, &"""Generated new config file at "{pathFull}"!""")
     logger.log(lvlWarn, &"""Please, fill out the needed configuration in that file & restart the application, afterwards!""")
     quit 0
