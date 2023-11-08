@@ -1,6 +1,7 @@
 from model/configuration import ConfigMaster, ConfigZoomPatternKeyword
 from std/options import Option, get, isSome
-from std/strutils import join, toLowerAscii
+from std/strutils import join
+from std/unicode import toLower
 from std/sequtils import mapIt, concat, map
 from std/hashes import hash
 from std/algorithm import sorted
@@ -36,7 +37,7 @@ func genHash(configs: varargs[tuple[prefix: string, keywords: seq[ConfigZoomPatt
   #   Context 1: Yes: Hello, World No: I, Hate, You
   #   Context 2: Yes: Hello No: World, I, Hate, You
   #   Both contexts must be considered different.
-  @configs.mapIt(it.prefix & it.keywords.concat.mapIt(it.keywords.mapIt(it.toLowerAscii).sorted.join).mapIt(it.toLowerAscii).sorted.join).hash
+  @configs.mapIt(it.prefix & it.keywords.concat.mapIt(it.keywords.mapIt(it.toLower).sorted.join).mapIt(it.toLower).sorted.join).hash
 
 proc genHash*(yesOpt, noOpt: Option[seq[ConfigZoomPatternKeyword]]): int =
   let

@@ -73,7 +73,7 @@ Production
 * ~~Do not force both `patternKeywordsNo` or `patternKeywordsYes` to exist; either is enough~~
 * ~~Allow either a `patternKeywordsNo` or a `patternKeywordsYes` to be duplicated across contexts~~
 * ~~Do not push for 3 days schedule if 7 days notification was already pushed within 3 days~~
-* Allow non-English characters in `patternKeywordsNo` and `patternKeywordsYes`
+* ~~Allow non-English characters in `patternKeywordsNo` and `patternKeywordsYes`~~
 * Publish Configuration File Documentation
 
 ## License
