@@ -2,6 +2,7 @@ version: '3.9'
 services:
   cache:
     image: redis:7-alpine
+    user: "1000:1000"
     restart: on-failure
     ports:
       - '127.0.0.1:6379:6379'
