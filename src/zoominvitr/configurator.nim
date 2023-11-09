@@ -22,7 +22,9 @@ import std/logging except debug ## https://github.com/flyx/NimYAML/issues/136#is
 
 from unicode import validateUtf8
 
-type KeywordsNotUTF8Defect = object of Defect
+type
+  NoNotificationTargetEnabledDefect = object of Defect
+  KeywordsNotUTF8Defect = object of Defect
 
 let logger = getLogger("configurator")
 
@@ -118,7 +120,7 @@ func genPathFullJSON(path, name: string): string =
 func genPathFull(path, name: string): string =
   if path != "": path.normalizePathEnd() & '/' & name else: name
 
-proc getConfig*(): ConfigMaster = config
+proc getConfig*: ConfigMaster = config
 
 proc genDefaultConfigJSON(path = configPath, name = configNameJSON): JsonNode =
   let
@@ -183,7 +185,12 @@ proc initConf*(path = configPath, name = configNameYAML): bool =
     return false
   true
 
-proc validateConf*(): bool =
+proc validateConf*: bool =
+  ## Validate, if a parsed configuration file has valid data in it.
+  ## Supposed to run only once at application start or
+  ## whenver a new configuration file is read & parsed.
+  if not config.contexts.anyIt(it.mail.enable):
+    raise NoNotificationTargetEnabledDefect.newException """No notification target enabled! You must at least enable a notification target, like, for example, E-Mail!"""
   if not config.contexts.allIt((if it.zoom.patternKeywordsYes.isSome: it.zoom.patternKeywordsYes.get.allIt(it.keywords.allIt(it.validateUtf8 == -1)) else: true) and (if it.zoom.patternKeywordsNo.isSome: it.zoom.patternKeywordsNo.get.allIt(it.keywords.allIt(it.validateUtf8 == -1)) else: true)):
     raise KeywordsNotUTF8Defect.newException """There is at least one word in `patternKeywordsYes` or `patternKeywordsNo`, which is not valid UTF-8 data! Please, only use valid UTF-8 strings."""
   let hashes = genHashes(config)
