@@ -114,11 +114,8 @@ var
 
 func pretty(node: JsonNode): string = node.pretty(configIndentation)
 
-func genPathFullJSON(path, name: string): string =
-  if path != "": path.normalizePathEnd() & '/' & name else: name
-
 func genPathFull(path, name: string): string =
-  if path != "": path.normalizePathEnd() & '/' & name else: name
+  if path != "": path.normalizePathEnd(true) & name else: name
 
 proc getConfig*: ConfigMaster = config
 
@@ -154,7 +151,7 @@ proc genDefaultConfig(path = configPath, name = configNameYAML) =
 
 proc initConfJSON*(path = configPath, name = configNameJSON): bool =
   let
-    pathFull = path.genPathFullJSON(name)
+    pathFull = path.genPathFull(name)
     configAlreadyExists = pathFull.fileExists
   if configAlreadyExists:
     logger.log(lvlDebug, "Config already exists! Not generating new one.")
