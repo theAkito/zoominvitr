@@ -18,7 +18,7 @@ type
     clientID*: string  ## User ID provided by Zoom.
     clientSecret*: string ## User ID provided by Zoom.
   ConfigMailSender* = object
-    mail*: string       ## E-Mail address used to SEND invitations to sendees in the same context.
+    mail*: string       ## E-Mail address used to SEND invitations to receivers in the same context.
     serverSMTP*: string ## SMTP server.
     portSMTP*: int      ## SMTP Port.
     user*: string       ## Login username.

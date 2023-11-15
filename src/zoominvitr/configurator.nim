@@ -1,6 +1,7 @@
 import
   meta,
   identificator,
+  serialisor,
   model/[
     configuration
   ],
@@ -11,11 +12,7 @@ import
     json,
     os,
     streams,
-    sugar,
     options
-  ],
-  pkg/[
-    yaml
   ]
 
 import std/logging except debug ## https://github.com/flyx/NimYAML/issues/136#issuecomment-1693576125
@@ -134,20 +131,7 @@ proc genDefaultConfig(path = configPath, name = configNameYAML) =
   if fStream == nil:
     logger.log(lvlFatal, pathFull)
     raise NilAccessDefect.newException "Trying to generate default configuration not possible, because destination is nil!"
-  var dumper = Dumper()
-  # https://github.com/flyx/NimYAML/blob/854d33378e2b31ada7e54716439a4d6990460268/yaml/presenter.nim#L69-L80
-  discard dumper.edit: ## https://github.com/flyx/NimYAML/issues/140
-    it.presentation.containers = cBlock
-    it.presentation.outputVersion = ovNone
-    it.presentation.newlines = nlLF
-    it.presentation.indentationStep = 2
-    # it.presentation.condenseFlow = false
-    it.presentation.suppressAttrs = true
-    it.presentation.directivesEnd = deNever
-    it.presentation.quoting = sqUnset
-    it.serialization.tagStyle = tsNone
-    it.serialization.handles = @[]
-    it.dump(config, fStream)
+  defaultDumper().dump(fStream, config)
 
 proc initConfJSON*(path = configPath, name = configNameJSON): bool =
   let
