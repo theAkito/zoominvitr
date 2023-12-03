@@ -9,7 +9,6 @@ services:
       - redis
     volumes:
       - ./zoominvitr.data/app:/data
-      - ./zoominvitr.data/logs:/logs
 
   redis:
     image: redis:7-alpine

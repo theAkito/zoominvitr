@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.5.0"
+version       = "0.5.1"
 author        = "Akito <the@akito.ooo>"
 description   = "Automatically send invitations about planned Zoom meetings."
 license       = "AGPL-3.0-or-later"
@@ -85,6 +85,7 @@ task docker_build_prod, "Build Production Docker.":
             --define:appDate:"{buildDate}" \
             --define:hostRedis:redis \
             --define:configPath:/data \
+            --define:logDirPath:/data/logs \
             --define:danger \
             --excessiveStackTrace:off \
             --opt:speed \
@@ -108,6 +109,7 @@ task docker_build_debug, "Build Debug Docker.":
             --define:debugResetNotify:true \
             --define:hostRedis:redis \
             --define:configPath:/data \
+            --define:logDirPath:/data/logs \
             --excessiveStackTrace:off \
             --debugger:native \
             --debuginfo:on \

@@ -1,7 +1,7 @@
 FROM nimlang/nim:2.0.0-alpine AS build
 
 ARG nimble_task_build=docker_build_prod
-ARG app_version=0.5.0
+ARG app_version=0.5.1
 
 WORKDIR /app
 
@@ -18,8 +18,6 @@ COPY --from=build /app/app /
 
 RUN \
   apk --no-cache add libcurl && \
-  rm -fr /var/cache/apk/* && \
-  mkdir -p /logs && \
-  chmod -cvR 777 /logs
+  rm -fr /var/cache/apk/*
 
 ENTRYPOINT ["/app"]

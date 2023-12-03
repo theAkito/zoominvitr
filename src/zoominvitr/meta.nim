@@ -14,7 +14,7 @@ const
   hostRedis         * {.strdefine.}  = "redis"
   portRedis         * {.intdefine.}  = 6379
   appName           * {.strdefine.}  = "zoominvitr"
-  appVersion        * {.strdefine.}  = "0.5.0"
+  appVersion        * {.strdefine.}  = "0.5.1"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
   configNameJSON    * {.strdefine.}  = appName & ".json"
