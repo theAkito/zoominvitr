@@ -8,7 +8,8 @@ import
     configurator,
     database,
     mail,
-    timecode
+    timecode,
+    logg
   ],
   zoominvitr/model/[
     zoom,

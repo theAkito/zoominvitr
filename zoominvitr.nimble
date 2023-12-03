@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.4.3"
+version       = "0.5.0"
 author        = "Akito <the@akito.ooo>"
 description   = "Automatically send invitations about planned Zoom meetings."
 license       = "AGPL-3.0-or-later"

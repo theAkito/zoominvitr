@@ -1,12 +1,4 @@
-from logging import Level, ConsoleLogger, newConsoleLogger, RollingFileLogger, newRollingFileLogger
 from timestamp import initTimestamp, `$`
-
-when NimMajor >= 2:
-  from std/os import DirSep
-  from std/paths import `/`, Path
-  from std/files import fileExists
-else:
-  from std/os import DirSep, `/`, existsFile
 
 const
   debug             * {.booldefine.} = false
@@ -21,11 +13,12 @@ const
   logMsgSuffix      * {.strdefine.}  = " -> "
   hostRedis         * {.strdefine.}  = "redis"
   portRedis         * {.intdefine.}  = 6379
-  appVersion        * {.strdefine.}  = "0.4.2"
+  appName           * {.strdefine.}  = "zoominvitr"
+  appVersion        * {.strdefine.}  = "0.5.0"
   appRevision       * {.strdefine.}  = appVersion
   appDate           * {.strdefine.}  = appVersion
-  configNameJSON    * {.strdefine.}  = "zoominvitr.json"
-  configNameYAML    * {.strdefine.}  = "zoominvitr.yaml"
+  configNameJSON    * {.strdefine.}  = appName & ".json"
+  configNameYAML    * {.strdefine.}  = appName & ".yaml"
   configPath        * {.strdefine.}  = ""
   configIndentation * {.intdefine.}  = 2
   sourcepage        * {.strdefine.}  = "https://github.com/theAkito/zoominvitr"
@@ -40,19 +33,3 @@ template edit*(o, body: untyped): untyped =
     var it {.inject.} = `o`
     `body`
     it
-
-func defineLogLevel*(): Level =
-  if debug: lvlDebug else: lvlInfo
-
-proc getLogger*(moduleName: string): ConsoleLogger =
-  newConsoleLogger(defineLogLevel(), logMsgPrefix & logMsgInter & moduleName & logMsgSuffix)
-
-proc getFileLogger*(moduleName: string): RollingFileLogger =
-  when NimMajor >= 2:
-    let filename = DirSep & cast[string](DirSep & string("logs".Path / moduleName.Path)) & ".log"
-    if not filename.Path.fileExists: filename.writeFile("")
-    newRollingFileLogger(filename, mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000, flushThreshold = lvlAll)
-  else:
-    let filename = DirSep & "logs" / moduleName & ".log"
-    if not filename.existsFile: filename.writeFile("")
-    newRollingFileLogger(filename, mode = fmReadWriteExisting, levelThreshold = defineLogLevel(), fmtStr = "", maxLines = 1000)

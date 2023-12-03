@@ -1,7 +1,9 @@
 import
-  ../meta,
-  ../identificator,
   configuration,
+  ../[
+    logg,
+    identificator
+  ],
   std/[
     logging,
     options

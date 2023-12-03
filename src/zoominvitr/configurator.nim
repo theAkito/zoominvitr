@@ -2,6 +2,7 @@ import
   meta,
   identificator,
   serialisor,
+  logg,
   model/[
     configuration
   ],

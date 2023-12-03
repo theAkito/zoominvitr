@@ -1,7 +1,7 @@
 FROM nimlang/nim:2.0.0-alpine AS build
 
 ARG nimble_task_build=docker_build_prod
-ARG app_version=0.4.2
+ARG app_version=0.5.0
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN \
   nimble "${nimble_task_build}" "${app_version}"
 
 
-FROM alpine:3.18.4
+FROM alpine:3.18.5
 
 COPY --from=build /app/app /
 
